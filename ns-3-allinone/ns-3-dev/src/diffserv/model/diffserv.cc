@@ -4,12 +4,12 @@
 
 namespace ns3 {
 
-/* ... */
-  DiffServ::DiffServ() {
+  template <typename Item>
+  DiffServ<Item>::DiffServ() {
 
   }
-
-  DiffServe::~DiffServ() {
+  template <typename Item>
+  DiffServ<Item>::~DiffServ() {
 
   }
 
@@ -21,12 +21,18 @@ namespace ns3 {
   //   return m_mode;
   // }
 
-  Ptr<Packet> Schedule (void) {
 
+  //template <typename Item>
+  Ptr<Packet> Schedule (void) {
+    //TODO: Change
+    Ptr<Packet> p = Create<Packet> (1024);
+    return p;
   }
 
+  template <typename Item>
   uint32_t Classify (Ptr<Packet> p) {
-
+    //TODO: CHANGE THIS
+    return 0;
   }
 
 }

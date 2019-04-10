@@ -5,8 +5,8 @@
  #include "ns3/queue.h"
  #include <queue>
  #include "ns3/packet.h"
-
  #include <vector>
+ #include "trafficclass.h"
 
 
 namespace ns3 {
@@ -15,11 +15,13 @@ namespace ns3 {
 template <typename Item>
 class DiffServ : public Queue<Item>{
 public:
+  static TypeId GetTypeId (void);
   DiffServ();
   ~DiffServ();
-//  void SetMode (DiffServ::QueueMode mode);
-  //do i need constant for this?
-//  DiffServ::QueueMode GetMode (void) const;
+
+ // void SetMode (DiffServ::QueueMode mode);
+ //  //do i need constant for this?
+ // DiffServ::QueueMode GetMode (void) const;
   Ptr<Packet> Schedule (void);
   uint32_t Classify (Ptr<Packet> p);
 private:

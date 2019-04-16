@@ -13,24 +13,30 @@ namespace ns3 {
 
   }
 
-  // void SetMode (DiffServ::QueueMode mode) {
-  //   m_mode = mode;
-  // }
-  //
-  // DiffServ::QueueMode GetMode (void) const {
-  //   return m_mode;
-  // }
+  template <typename Item>
+  void
+  DiffServ<Item>::SetMode (DiffServ<Item>::QueueMode mode) {
+    m_mode = mode;
+  }
+
+  template <typename Item>
+  typename DiffServ<Item>::QueueMode
+  DiffServ<Item>::GetMode (void) const {
+    return m_mode;
+  }
 
 
-  //template <typename Item>
-  Ptr<Packet> Schedule (void) {
+  template <typename Item>
+  Ptr<Packet>
+  DiffServ<Item>::Schedule (void) {
     //TODO: Change
     Ptr<Packet> p = Create<Packet> (1024);
     return p;
   }
 
   template <typename Item>
-  uint32_t Classify (Ptr<Packet> p) {
+  uint32_t
+  DiffServ<Item>::Classify (Ptr<Packet> p) {
     //TODO: CHANGE THIS
     return 0;
   }

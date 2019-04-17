@@ -62,11 +62,6 @@ CdaServer::GetTypeId (void)
 
 CdaServer::CdaServer ()
 {
-  m_t1Start = 0.0;
-  m_t1End = 0.0;
-  m_t2Start = 0.0;
-  m_t2End = 0.0;
-  m_lastSentPacket = 0.0;
   m_nPackets = 0;
 }
 
@@ -74,11 +69,6 @@ CdaServer::~CdaServer()
 {
   m_socket = 0;
   m_socket6 = 0;
-  m_t1Start = 0.0;
-  m_t1End = 0.0;
-  m_t2Start = 0.0;
-  m_t2End = 0.0;
-  m_lastSentPacket = 0.0;
 }
 
 void
@@ -155,26 +145,6 @@ CdaServer::StopApplication ()
       m_socket6->Close ();
       m_socket6->SetRecvCallback (MakeNullCallback<void, Ptr<Socket> > ());
     }
-
-    m_t2End = m_lastSentPacket;
-    double t1Time = fabs (m_t1Start - m_t1End);
-    double t2Time = fabs (m_t2Start - m_t2End);
-    double delta = fabs (t1Time - t2Time);
-
-    std::cout << "t1start = " << m_t1Start << std::endl;
-    std::cout << "t1End = " << m_t1End << std::endl;
-    std::cout << "t2Start = " << m_t2Start << std::endl;
-    std::cout << "t2End = " << m_t2End << std::endl;
-
-    std::cout << "High Entropy Train Time = " << t1Time << std::endl;
-    std::cout << "Low Entropy Train Time = " << t2Time << std::endl;
-    
-    if (delta > 100)
-    {
-      std::cout << "Compression detected!\ndelta = " << delta << "ms" << std::endl;
-    } else {
-      std::cout << "No compression was detected\ndelta = " << delta << "ms" << std::endl;
-    }
 }
 
 void 
@@ -189,19 +159,6 @@ CdaServer::HandleRead (Ptr<Socket> socket)
       socket->GetSockName (localAddress);
       m_rxTrace (packet);
       m_rxTraceWithAddresses (packet, from, localAddress);
-
-      double recTime = Simulator::Now ().GetMilliSeconds ();
-      if (m_nPackets == 0)
-        {
-          m_t1Start = recTime;
-          m_lastSentPacket = recTime;
-        }
-      if (fabs(recTime - m_lastSentPacket) > 1000.0)
-      {
-        m_t1End = m_lastSentPacket;
-        m_t2Start = recTime;
-      }
-      m_lastSentPacket = recTime;
       m_nPackets++;
     }
 }

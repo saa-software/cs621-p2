@@ -234,47 +234,9 @@ CdaClient::Send (void)
   NS_ASSERT (m_sendEvent.IsExpired ());
 
   Ptr<Packet> p;
-  if (m_sent < m_count / 2)
-    {
-      //
-      // If m_dataSize is non-zero, we have a data buffer of the same size that we
-      // are expected to copy and send.  This state of affairs is created if one of
-      // the Fill functions is called.  In this case, m_size must have been set
-      // to agree with m_dataSize
-      //
-      delete [] m_data;
-      m_data = new uint8_t [m_size];
-      m_dataSize = m_size;
-      ifstream file;
-      file.open ("/dev/random");
-      if (file.is_open ())
-        {
-          // file.seekg(m_sent*1100);
-          char c;
-          uint32_t j = 0;
-          while(j < m_size)
-            {
-              c = file.get();
-              for (int i = 0; i < 8; i++)
-                {
-                  m_data[j]  = ((c >> i) & 1);
-                  j++;
-                }
-            }
-        }
-      p = Create<Packet> (m_data, m_dataSize);
-    }
-  else
-    {
-      //
-      // If m_dataSize is zero, the client has indicated that it doesn't care
-      // about the data itself either by specifying the data size by setting
-      // the corresponding attribute or by not calling a SetFill function.  In
-      // this case, we don't worry about it either.  But we do allow m_size
-      // to have a value different from the (zero) m_dataSize.
-      //
-      p = Create<Packet> (m_size);
-    }
+  
+  p = Create<Packet> (m_size);
+  
   Address localAddress;
   m_socket->GetSockName (localAddress);
   // call to the trace sinks before the packet is actually sent,
@@ -312,11 +274,7 @@ CdaClient::Send (void)
                    Inet6SocketAddress::ConvertFrom (m_peerAddress).GetIpv6 () << " port " << Inet6SocketAddress::ConvertFrom (m_peerAddress).GetPort ());
     }
 
-  if (m_sent == m_count / 2) 
-    {
-      ScheduleTransmit (Seconds (100.) );
-    } 
-  else if (m_sent < m_count)
+  if (m_sent < m_count)
     {
       ScheduleTransmit (m_interval);
     }

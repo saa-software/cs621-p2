@@ -73,11 +73,6 @@ private:
   Ptr<Socket> m_socket; //!< IPv4 Socket
   Ptr<Socket> m_socket6; //!< IPv6 Socket
   Address m_local; //!< local multicast address
-  double m_t1Start;
-  double m_t1End;
-  double m_t2Start;
-  double m_t2End;
-  double m_lastSentPacket;
   uint32_t m_nPackets;
 
   /// Callbacks for tracing the packet Rx events

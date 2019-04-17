@@ -81,42 +81,29 @@ main (int argc, char *argv[])
 
   CommandLine cmd;
 
-  uint32_t capacity = 1;
-  bool compressionEnabled = 1;
+  std::string inputFile = "";
 
-  cmd.AddValue ("capacity", "Capacity of compression link in Mbps", capacity);
-  cmd.AddValue ("compressionEnabled", "Enable or disable compression link", compressionEnabled);
+  cmd.AddValue ("inputFile", "inputFile for SPQ Application", inputFile);
   cmd.Parse (argc, argv);
 
-  std::cout << "Capacity of Compression link: " << capacity << std::endl;
-  std::cout << "Compression Enabled: " << compressionEnabled << std::endl;
+  std::cout << "inputFile: " << inputFile << std::endl;
 
-  // Explicitly create the nodes required by the topology (shown above).
+  // Explicitly create the nodes required by the topology.
 
   NodeContainer n;
-  n.Create (4);
+  n.Create (3);
 
-  //
   NodeContainer n0n1 = NodeContainer (n.Get (0), n.Get (1));
-  NodeContainer n1n2 = NodeContainer (n.Get (1), n.Get (2));
-  NodeContainer n2n3 = NodeContainer (n.Get (2), n.Get (3));
+  NodeContainer n1n2 = NodeContainer (n.Get (1), n.Get (2));;
 
   PointToPointHelper p2p1;
-  p2p1.SetDeviceAttribute ("DataRate", StringValue ("8Mbps"));
-  p2p1.SetDeviceAttribute ("CompressionEnabled", BooleanValue (0));
+  p2p1.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
 
   PointToPointHelper p2p2;
-  p2p2.SetDeviceAttribute ("DataRate", StringValue (std::to_string (capacity) + "Mbps"));
-  p2p2.SetDeviceAttribute ("CompressionEnabled", BooleanValue (compressionEnabled));
-  p2p2.SetDeviceAttribute ("CompressionProtocol", IntegerValue (proto));
-
-  PointToPointHelper p2p3;
-  p2p3.SetDeviceAttribute ("DataRate", StringValue ("8Mbps"));
-  p2p3.SetDeviceAttribute ("CompressionEnabled", BooleanValue (0));
+  p2p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
 
   NetDeviceContainer c0c1 = p2p1.Install (n0n1);
   NetDeviceContainer c1c2 = p2p2.Install (n1n2);
-  NetDeviceContainer c2c3 = p2p3.Install (n2n3);
 
   InternetStackHelper stack;
   stack.Install (n);
@@ -126,61 +113,69 @@ main (int argc, char *argv[])
 
   Ipv4InterfaceContainer i0i1 = address.Assign (c0c1);
   Ipv4InterfaceContainer i1i2 = address.Assign (c1c2);
-  Ipv4InterfaceContainer i2i3 = address.Assign (c2c3);
 
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
   //
-  // Create a CdaServer application on node one.
+  // Create a CdaServer application on node 2.
   //
 
   Packet::EnablePrinting ();
   double start = 1.0;
   double stop = 3000.0;
-  uint16_t port = 9; // well-known echo port number
+  uint16_t port1 = 9; // well-known echo port number
+  uint16_t port2 = 10; // well-known echo port number
 
-  CdaServerHelper server (port);
-  ApplicationContainer apps = server.Install (n.Get (3));
+  CdaServerHelper server1 (port1);
+  CdaServerHelper server2 (port2);
+
+  ApplicationContainer apps = server1.Install (n.Get (2));
+  apps.Start (Seconds (start));
+  apps.Stop (Seconds (stop));
+
+  apps = server2.Install (n.Get (2));
   apps.Start (Seconds (start));
   apps.Stop (Seconds (stop));
 
   //
   // Create a CdaClient application to send UDP datagrams from node zero to
-  // node three.
+  // node two.
   //
   uint32_t packetSize = 1100;
   uint32_t maxPacketCount = 12000;
-
   Time interPacketInterval = MicroSeconds (0);
-  CdaClientHelper client (i2i3.GetAddress (1), port);
-  client.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
-  client.SetAttribute ("Interval", TimeValue (interPacketInterval));
-  client.SetAttribute ("PacketSize", UintegerValue (packetSize));
+
+  CdaClientHelper client1 (i1i2.GetAddress (1), port1);
+  client1.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
+  client1.SetAttribute ("Interval", TimeValue (interPacketInterval));
+  client1.SetAttribute ("PacketSize", UintegerValue (packetSize));
+
   apps = client.Install (n.Get (0));
   apps.Start (Seconds (start + 1));
   apps.Stop (Seconds (stop));
 
+
+  CdaClientHelper client2 (i1i2.GetAddress (1), port2);
+  client2.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
+  client2.SetAttribute ("Interval", TimeValue (interPacketInterval));
+  client2.SetAttribute ("PacketSize", UintegerValue (packetSize));
+
+  apps = client.Install (n.Get (0));
+  apps.Start (Seconds (start + 2));
+  apps.Stop (Seconds (stop));
+
+
   AsciiTraceHelper ascii;
-  // p2p.EnableAsciiAll (ascii.CreateFileStream ("cda.tr"));
 
-  p2p1.EnablePcap ("l1-cda", n0n1, false);
-  p2p2.EnablePcap ("l1-cda", n1n2, false);
-  p2p3.EnablePcap ("l1-cda", n2n3, false);
+  p2p1.EnablePcap ("spq", n0n1, false);
+  p2p2.EnablePcap ("spq", n1n2, false);
+  p2p3.EnablePcap ("spq", n2n3, false);
 
-  if (compressionEnabled)
-    {
-      std::string fileName = "cda-" + std::to_string (capacity) + "-compression-";
-      p2p1.EnablePcapAll (fileName, false);
-      p2p2.EnablePcapAll (fileName, false);
-      p2p3.EnablePcapAll (fileName, false);
-    }
-  else
-    {
-      std::string fileName = "cda-" + std::to_string (capacity) + "-noCompression-";
-      p2p1.EnablePcapAll (fileName, false);
-      p2p2.EnablePcapAll (fileName, false);
-      p2p1.EnablePcapAll (fileName, false);
-    }
+  
+  std::string fileName = "spq-" + std::to_string (capacity);
+  p2p1.EnablePcapAll (fileName, false);
+  p2p2.EnablePcapAll (fileName, false);
+  p2p1.EnablePcapAll (fileName, false);
 
   //
   // Now, do the actual simulation.

@@ -15,21 +15,20 @@ namespace ns3 {
 template <typename Item>
 class DiffServ : public Queue<Item>{
 public:
+  static TypeId GetTypeId (void);
+  DiffServ();
+  ~DiffServ();
   enum QueueMode
   {
     QUEUE_MODE_PACKETS,
     QUEUE_MODE_BYTES,
   };
-
-  static TypeId GetTypeId (void);
-  DiffServ();
-  ~DiffServ();
-
- void SetMode (DiffServ<Item>::QueueMode mode);
+  void SetMode (DiffServ<Item>::QueueMode mode);
  //  //do i need constant for this?
- DiffServ<Item>::QueueMode GetMode (void) const;
+  DiffServ<Item>::QueueMode GetMode (void) const;
   virtual Ptr<Packet> Schedule (void);
   virtual uint32_t Classify (Ptr<Packet> p);
+
 private:
   virtual bool DoEnqueue(Ptr<Packet> p);
   virtual Ptr<Packet> DoDequeue (void);
@@ -39,7 +38,7 @@ private:
 
 
 
-
+protected:
   std::vector<TrafficClass*> q_class;
 
 };

@@ -3,25 +3,26 @@
 #ifndef FILTER_H
 #define FILTER_H
 
-#include "vector"
+#include <vector>
 #include "ns3/packet.h"
 #include "ns3/ptr.h"
 #include "ns3/ipv4-header.h"
 #include "ns3/inet-socket-address.h"
 
 namespace ns3 {
+
+class FilterElements
+{
+public:
+  bool virtual match (Ptr<Packet> p);
+};
+
 class Filter
 {
 public:
   std::vector<FilterElements> elements;
 
-  bool Filter::match (Ptr<Packet> p);
-};
-
-class FilterElements
-{
-public:
-  bool virtual FilterElements::match (Ptr<Packet> p);
+  bool match (Ptr<Packet> p);
 };
 
 class Source_Ip_Address : public FilterElements

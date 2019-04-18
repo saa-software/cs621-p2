@@ -40,7 +40,7 @@ TrafficClass::TrafficClass ()
 	priority_level = 0;
 	isDefault = false;
 }
-
+	
 TrafficClass::~TrafficClass ()
 {
 	NS_LOG_FUNCTION_NOARGS ();
@@ -49,21 +49,39 @@ TrafficClass::~TrafficClass ()
 
 bool
 TrafficClass::Enqueue (Ptr<Packet> p) {
-	//TODO fix this
-	return false;
+	bool result = m_queue->Enqueue (p);
+	if (result)
+	{
+		bytes += p->GetSize ();
+		packets++;
+	}
+	return result;
 }
 
 Ptr<Packet>
 TrafficClass::Dequeue () {
-	Ptr<Packet> p;
+	Ptr<Packet> p = m_queue->Dequeue ();
+	bytes -= p->GetSize ();
+	packets--;
 	return p;
 }
 
 bool
 TrafficClass::match (Ptr<Packet> p) {
-	//TODO fix this
+	//TODO
+	// for (int i = 0; i < filters.size(); i++)
+	// {
+	// 	if (filter.at(i).match(p)) {
+	// 		return true;
+	// 	}
+	// }
 	return false;
 }
+
+// void
+// SetFilter(vector<Filter*> f) {
+// 	filters = f;
+// }
 
 }
 

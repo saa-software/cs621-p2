@@ -7,12 +7,12 @@
 #include "ns3/ptr.h"
 #include "ns3/queue.h"
 #include "ns3/object.h"
-// #include "ns3/filter.h"
+// TODO #include "ns3/filter.h"
 
 
 namespace ns3 {
 
-class TrafficClass  : public Object {
+class TrafficClass : public Object {
 /**
 * \ingroup diffserv
 */
@@ -20,7 +20,7 @@ public:
 	/**
 	* A collection of filters for the class, any of which should match
 	*/
-	// TODO: put this back vector<Filter*> filters;
+	// TODO vector<Filter*> filters;
 	
 	/**
 	* \brief Get the TypeId
@@ -55,7 +55,7 @@ public:
 	/**
 	* Dequeues a packet from the queue.
 	*
-	* \returns the packet dequeued
+	* \returns the dequeued packet
 	*/
 	Ptr<Packet> Dequeue();
 
@@ -66,6 +66,13 @@ public:
 	* \returns a boolean indicating whether or not packet was a match
 	*/
 	bool match(Ptr<Packet> p);
+	/**
+	* Set filter for the queue
+	*
+	* \param p Packet to check for a match
+	* \returns a boolean indicating whether or not packet was a match
+	*/
+	// void SetFilter(vector<Filter*> f);
 
 
 private:

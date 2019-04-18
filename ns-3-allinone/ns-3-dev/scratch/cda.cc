@@ -26,8 +26,6 @@
 #include "ns3/point-to-point-module.h"
 #include "ns3/flow-monitor-helper.h"
 #include "ns3/ipv4-global-routing-helper.h"
-#include "ns3/queue.h"
-#include "ns3/drop-tail-queue.h"
 #include "src/json/json.h"
 
 using namespace ns3;
@@ -43,15 +41,15 @@ main (int argc, char *argv[])
   // std::ifstream file ("config.json");
   // file >> root;
   // const Json::Value CompressionProtocol = root["compression_protocol"];
-  Json::Value root;
-  Json::CharReaderBuilder rbuilder;
+  // Json::Value root;
+  // Json::CharReaderBuilder rbuilder;
   // Configure the Builder, then ...
-  std::string errs;
-  std::ifstream config_doc("scratch/config.json", std::ifstream::binary);
-  config_doc >> root;
+  // std::string errs;
+  // std::ifstream config_doc("scratch/config.json", std::ifstream::binary);
+  // config_doc >> root;
   // printf("1\n");
   // bool parsingSuccessful = Json::parseFromStream (rbuilder, config_doc, &root, &errs);
-  Json::parseFromStream (rbuilder, config_doc, &root, &errs);
+  // Json::parseFromStream (rbuilder, config_doc, &root, &errs);
   // printf("success: %d\n", parsingSuccessful);
   // if (!parsingSuccessful)
     // {
@@ -61,17 +59,17 @@ main (int argc, char *argv[])
     // }
   // printf("2\n");
   // ...
-  Json::StreamWriterBuilder wbuilder;
+  // Json::StreamWriterBuilder wbuilder;
   // Configure the Builder, then ...
   // std::string outputConfig = Json::writeString (wbuilder, root);
   // std::cout << "JSON: " << outputConfig << std::endl;
-  const Json::Value outputCompressionProtocol = root["compression_protocol"];
-  std::string compressionProtocol = Json::writeString (wbuilder, outputCompressionProtocol);
-  std::cout << "COMPRESSION PROTO: " << compressionProtocol << std::endl;
-  int proto = stoi (compressionProtocol);
+  // const Json::Value outputCompressionProtocol = root["compression_protocol"];
+  // std::string compressionProtocol = Json::writeString (wbuilder, outputCompressionProtocol);
+  // std::cout << "COMPRESSION PROTO: " << compressionProtocol << std::endl;
+  // int proto = stoi (compressionProtocol);
   // End json parsing
   
-  Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("6000p"));
+  // Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("6000p"));
   //
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
@@ -96,14 +94,16 @@ main (int argc, char *argv[])
   NodeContainer n0n1 = NodeContainer (n.Get (0), n.Get (1));
   NodeContainer n1n2 = NodeContainer (n.Get (1), n.Get (2));;
 
-  PointToPointHelper p2p1;
-  p2p1.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
+  PointToPointHelper p0p1;
+  p0p1.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
 
-  PointToPointHelper p2p2;
-  p2p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
 
-  NetDeviceContainer c0c1 = p2p1.Install (n0n1);
-  NetDeviceContainer c1c2 = p2p2.Install (n1n2);
+  PointToPointHelper p1p2;
+  p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
+  p1p2.SetQueue("ns3::SPQ", "MaxPackets", StringValue ("10"));
+
+  NetDeviceContainer c0c1 = p0p1.Install (n0n1);
+  NetDeviceContainer c1c2 = p1p2.Install (n1n2);
 
   InternetStackHelper stack;
   stack.Install (n);
@@ -150,7 +150,7 @@ main (int argc, char *argv[])
   client1.SetAttribute ("Interval", TimeValue (interPacketInterval));
   client1.SetAttribute ("PacketSize", UintegerValue (packetSize));
 
-  apps = client.Install (n.Get (0));
+  apps = client1.Install (n.Get (0));
   apps.Start (Seconds (start + 1));
   apps.Stop (Seconds (stop));
 
@@ -160,22 +160,16 @@ main (int argc, char *argv[])
   client2.SetAttribute ("Interval", TimeValue (interPacketInterval));
   client2.SetAttribute ("PacketSize", UintegerValue (packetSize));
 
-  apps = client.Install (n.Get (0));
+  apps = client2.Install (n.Get (0));
   apps.Start (Seconds (start + 2));
   apps.Stop (Seconds (stop));
 
 
   AsciiTraceHelper ascii;
-
-  p2p1.EnablePcap ("spq", n0n1, false);
-  p2p2.EnablePcap ("spq", n1n2, false);
-  p2p3.EnablePcap ("spq", n2n3, false);
-
   
-  std::string fileName = "spq-" + std::to_string (capacity);
-  p2p1.EnablePcapAll (fileName, false);
-  p2p2.EnablePcapAll (fileName, false);
-  p2p1.EnablePcapAll (fileName, false);
+  std::string fileName = "spq-";
+  p0p1.EnablePcapAll (fileName, false);
+  p1p2.EnablePcapAll (fileName, false);
 
   //
   // Now, do the actual simulation.

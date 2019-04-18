@@ -9,8 +9,9 @@
 def build(bld):
     module = bld.create_ns3_module('diffserv', ['core'])
     module.source = [
-        'model/diffserv.cc',
+        'model/filter.cc',
         'model/trafficclass.cc',
+        'model/diffserv.cc',
         'helper/diffserv-helper.cc',
         ]
 
@@ -22,9 +23,10 @@ def build(bld):
     headers = bld(features='ns3header')
     headers.module = 'diffserv'
     headers.source = [
+        'model/filter.h',
+        'model/trafficclass.h',
         'model/diffserv.h',
         'helper/diffserv-helper.h',
-        'model/trafficclass.h',
         ]
 
     if bld.env.ENABLE_EXAMPLES:

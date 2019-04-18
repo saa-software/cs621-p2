@@ -1,5 +1,10 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
+#include <vector>
+#include <string>
+#include <queue>
+using namespace std;
+
 #include "ns3/log.h"
 #include "ns3/packet.h"
 #include "ns3/ptr.h"
@@ -8,6 +13,7 @@
 #include "ns3/boolean.h"
 #include "ns3/uinteger.h"
 #include "ns3/pointer.h"
+#include "filter.h"
 
 namespace ns3 {
 
@@ -20,12 +26,7 @@ TrafficClass::GetTypeId (void)
 {
 static TypeId tid = TypeId ("ns3::TrafficClass")
     .SetGroupName ("TrafficClass")
-    .AddConstructor<TrafficClass> ()
-	.AddAttribute ("TxQueue",
-                   "A queue to use as the transmit queue in the device.",
-                   PointerValue (),
-                   MakePointerAccessor (&TrafficClass::m_queue),
-                   MakePointerChecker<Queue<Packet> > ());
+    .AddConstructor<TrafficClass> ();
 	return tid;
 }
 
@@ -39,49 +40,80 @@ TrafficClass::TrafficClass ()
 	weight = 0.0;
 	priority_level = 0;
 	isDefault = false;
+	filters = {};
 }
 	
 TrafficClass::~TrafficClass ()
 {
 	NS_LOG_FUNCTION_NOARGS ();
-	m_queue = 0;
 }
 
 bool
-TrafficClass::Enqueue (Ptr<Packet> p) {
-	bool result = m_queue->Enqueue (p);
-	if (result)
+TrafficClass::Enqueue (Ptr<Packet> p)
+{
+	if (m_queueMode == "bytes") //placeholder
 	{
-		bytes += p->GetSize ();
-		packets++;
+		if (bytes + p->GetSize () <= maxBytes) {
+			//enqueue
+			m_queue.push(p);
+			bytes += p->GetSize ();
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		if (packets + 1 <= maxPackets) {
+			m_queue.push(p);
+			packets++;
+			return true;
+		} else {
+			return false;
+		}
 	}
-	return result;
 }
 
 Ptr<Packet>
-TrafficClass::Dequeue () {
-	Ptr<Packet> p = m_queue->Dequeue ();
-	bytes -= p->GetSize ();
-	packets--;
+TrafficClass::Dequeue ()
+{
+	Ptr<Packet> p = m_queue.front();
+	m_queue.pop();
+	if (m_queueMode == "bytes")
+	{
+		bytes -= p->GetSize ();
+	} else {
+		packets--;
+	}
 	return p;
 }
 
 bool
-TrafficClass::match (Ptr<Packet> p) {
-	//TODO
-	// for (int i = 0; i < filters.size(); i++)
-	// {
-	// 	if (filter.at(i).match(p)) {
-	// 		return true;
-	// 	}
-	// }
+TrafficClass::match (Ptr<Packet> p)
+{
+	for (unsigned int i = 0; i < filters.size(); i++)
+	{
+		if ((*filters.at(i)).match(p)) {
+			return true;
+		}
+	}
 	return false;
 }
 
-// void
-// SetFilter(vector<Filter*> f) {
-// 	filters = f;
-// }
+void
+TrafficClass::SetFilters(vector<Filter*> f)
+{
+	filters = f;
+}
+
+bool
+TrafficClass::isEmpty() 
+{
+	if (m_queueMode == "bytes")
+	{
+		return bytes == 0;
+	} else {
+		return packets == 0;
+	}
+}
 
 }
 

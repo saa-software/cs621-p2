@@ -3,11 +3,15 @@
 #define TRAFFICCLASS_H
 
 #include <vector>
+#include <string>
+#include <queue>
+using namespace std;
+
 #include "ns3/packet.h"
 #include "ns3/ptr.h"
 #include "ns3/queue.h"
 #include "ns3/object.h"
-// TODO #include "ns3/filter.h"
+#include "filter.h"
 
 
 namespace ns3 {
@@ -20,7 +24,7 @@ public:
 	/**
 	* A collection of filters for the class, any of which should match
 	*/
-	// TODO vector<Filter*> filters;
+	vector<Filter*> filters;
 	
 	/**
 	* \brief Get the TypeId
@@ -50,6 +54,8 @@ public:
 	* \returns a boolean indicating whether or not to operation was successful
 	*/
 
+	bool isEmpty();
+
 	bool Enqueue(Ptr<Packet> p);
 
 	/**
@@ -67,12 +73,11 @@ public:
 	*/
 	bool match(Ptr<Packet> p);
 	/**
-	* Set filter for the queue
+	* Set filters for the queue
 	*
-	* \param p Packet to check for a match
-	* \returns a boolean indicating whether or not packet was a match
+	* \param f vector of filters
 	*/
-	// void SetFilter(vector<Filter*> f);
+	void SetFilters(vector<Filter*> f);
 
 
 private:
@@ -115,7 +120,9 @@ private:
 	* The queue which the TrafficClass has management of.
 	* \see class Queue
 	*/
-	 Ptr<Queue<Packet> > m_queue;
+	 queue<Ptr<Packet>> m_queue;
+
+	 string m_queueMode;
 
 
 };

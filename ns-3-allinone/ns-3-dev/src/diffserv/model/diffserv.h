@@ -34,12 +34,13 @@ private:
   virtual Ptr<Packet> DoDequeue (void);
   virtual Ptr<const Packet> DoPeek (void) const;
   virtual Ptr<Packet> DoRemove (void);
-  DiffServ<Item>::QueueMode m_mode;
+
 
 
 
 protected:
   std::vector<TrafficClass*> q_class;
+  DiffServ<Item>::QueueMode m_mode;
 
 };
 

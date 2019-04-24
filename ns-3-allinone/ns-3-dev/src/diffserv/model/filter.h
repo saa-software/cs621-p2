@@ -14,7 +14,7 @@ namespace ns3 {
 class FilterElements
 {
 public:
-  bool virtual match (Ptr<Packet> p);
+  virtual bool match (Ptr<Packet> p) = 0;
 };
 
 class Filter

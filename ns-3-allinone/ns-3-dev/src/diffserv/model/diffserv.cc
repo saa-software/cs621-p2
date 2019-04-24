@@ -4,55 +4,66 @@
 
 namespace ns3 {
 
-
-  DiffServ::DiffServ() {
-
-  }
-
-  DiffServ::~DiffServ() {
-
-  }
+  template <typename Item>
 
   TypeId
-  DiffServ::GetTypeId (void) {
-    static TypeId tid = TypeId (("ns3::DiffServ"))
-      .SetParent<Queue<Packet>>()
+  DiffServ<Item>::GetTypeId (void) {
+    static TypeId tid = TypeId (("ns3::DiffServ<" + GetTypeParamName<DiffServ<Item> > () + ">").c_str ())
+      .SetParent<Queue<Item>>()
       .SetGroupName("Network")
     ;
     return tid;
   }
 
+  template <typename Item>
+  DiffServ<Item>::DiffServ () {
+
+  }
+
+  template <typename Item>
+  DiffServ<Item>::~DiffServ () {
+
+  }
+
+  template <typename Item>
   void
-  DiffServ::SetMode (DiffServ::QueueMode mode) {
+  DiffServ<Item>::SetMode (DiffServ<Item>::QueueMode mode) {
     m_mode = mode;
   }
 
-
-  typename DiffServ::QueueMode
-  DiffServ::GetMode (void) const {
+  template <typename Item>
+  typename DiffServ<Item>::QueueMode
+  DiffServ<Item>::GetMode (void) const {
     return m_mode;
   }
 
-  Ptr<Packet>
-  DiffServ::Dequeue (void){
-    Ptr<Packet> p = DoDequeue(Head());
+  template <typename Item>
+  Ptr<Item>
+  DiffServ<Item>::Dequeue (void){
+    Ptr<Item> p = DoDequeue(Head());
     return p;
   }
 
+  template <typename Item>
   bool
-  DiffServ::Enqueue(Ptr<Packet> p) {
+  DiffServ<Item>::Enqueue(Ptr<Item> p) {
     return DoEnqueue(Tail(), p);
   }
 
-  Ptr<const Packet>
-  DiffServ::Peek (void) const {
+  template <typename Item>
+  Ptr<const Item>
+  DiffServ<Item>::Peek (void) const {
     return DoPeek(Head());
   }
 
-  Ptr<Packet>
-  DiffServ::Remove (void){
-    Ptr<Packet> p = DoRemove(Head());
+  template <typename Item>
+  Ptr<Item>
+  DiffServ<Item>::Remove (void){
+    Ptr<Item> p = DoRemove(Head());
     return p;
   }
+
+  NS_OBJECT_TEMPLATE_CLASS_DEFINE (DiffServ,Packet);
+  NS_OBJECT_TEMPLATE_CLASS_DEFINE (DiffServ,QueueDiscItem);
 
 }

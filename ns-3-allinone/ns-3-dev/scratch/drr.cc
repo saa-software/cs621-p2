@@ -36,40 +36,6 @@ NS_LOG_COMPONENT_DEFINE ("Cda");
 int
 main (int argc, char *argv[])
 {
-  // Read the json config file to get the compression protocol
-  // Json::Value root;
-  // Json::CharReaderBuilder rbuilder;
-  // std::ifstream file ("config.json");
-  // file >> root;
-  // const Json::Value CompressionProtocol = root["compression_protocol"];
-  // Json::Value root;
-  // Json::CharReaderBuilder rbuilder;
-  // Configure the Builder, then ...
-  // std::string errs;
-  // std::ifstream config_doc("scratch/config.json", std::ifstream::binary);
-  // config_doc >> root;
-  // printf("1\n");
-  // bool parsingSuccessful = Json::parseFromStream (rbuilder, config_doc, &root, &errs);
-  // Json::parseFromStream (rbuilder, config_doc, &root, &errs);
-  // printf("success: %d\n", parsingSuccessful);
-  // if (!parsingSuccessful)
-    // {
-      // report to the user the failure and their locations in the document.
-      // std::cout << "Failed to parse configuration\n" << errs;
-      // return 0;
-    // }
-  // printf("2\n");
-  // ...
-  // Json::StreamWriterBuilder wbuilder;
-  // Configure the Builder, then ...
-  // std::string outputConfig = Json::writeString (wbuilder, root);
-  // std::cout << "JSON: " << outputConfig << std::endl;
-  // const Json::Value outputCompressionProtocol = root["compression_protocol"];
-  // std::string compressionProtocol = Json::writeString (wbuilder, outputCompressionProtocol);
-  // std::cout << "COMPRESSION PROTO: " << compressionProtocol << std::endl;
-  // int proto = stoi (compressionProtocol);
-  // End json parsing
-  
   // Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("6000p"));
   //
   // Users may find it convenient to turn on explicit debugging
@@ -82,10 +48,46 @@ main (int argc, char *argv[])
 
   std::string inputFile = "";
 
-  cmd.AddValue ("inputFile", "inputFile for SPQ Application", inputFile);
+  cmd.AddValue ("i", "inputFile for SPQ Application", inputFile);
   cmd.Parse (argc, argv);
 
   std::cout << "inputFile: " << inputFile << std::endl;
+
+    // Read the json config file to get the compression protocol
+  // Json::Value root;
+  // Json::CharReaderBuilder rbuilder;
+  // std::ifstream file (inputFile);
+  // file >> root;
+  // const Json::Value CompressionProtocol = root["compression_protocol"];
+  // Json::Value root;
+  // Json::CharReaderBuilder rbuilder;
+  // // Configure the Builder, then ...
+  // std::string errs;
+  // std::ifstream config_doc(inputFile, std::ifstream::binary);
+  // config_doc >> root;
+  // // printf("1\n");
+  // bool parsingSuccessful = Json::parseFromStream (rbuilder, config_doc, &root, &errs);
+  // Json::parseFromStream (rbuilder, config_doc, &root, &errs);
+  // printf("success: %d\n", parsingSuccessful);
+  // if (!parsingSuccessful)
+  //   {
+  //     // report to the user the failure and their locations in the document.
+  //     std::cout << "Failed to parse configuration\n" << errs;
+  //     return 0;
+  //   }
+  // printf("2\n");
+  // ...
+  // Json::StreamWriterBuilder wbuilder;
+  // Configure the Builder, then ...
+
+  // std::string outputConfig = Json::writeString (wbuilder, root);
+  // std::cout << "JSON: " << outputConfig << std::endl;
+  // const Json::Value outputCompressionProtocol = root["compression_protocol"];
+  // std::string compressionProtocol = Json::writeString (wbuilder, outputCompressionProtocol);
+  // std::cout << "COMPRESSION PROTO: " << compressionProtocol << std::endl;
+  // int proto = stoi (compressionProtocol);
+  
+  // End json parsing
 
   // Explicitly create the nodes required by the topology.
 
@@ -123,12 +125,14 @@ main (int argc, char *argv[])
 
   Packet::EnablePrinting ();
   double start = 1.0;
-  double stop = 3000.0;
-  uint16_t port1 = 9; // well-known echo port number
-  uint16_t port2 = 10; // well-known echo port number
+  double stop = 50.0;
+  uint16_t port1 = 9;
+  uint16_t port2 = 10;
+  uint16_t port3 = 11;
 
   CdaServerHelper server1 (port1);
   CdaServerHelper server2 (port2);
+  CdaServerHelper server3 (port3);
 
   ApplicationContainer apps = server1.Install (n.Get (2));
   apps.Start (Seconds (start));
@@ -138,12 +142,16 @@ main (int argc, char *argv[])
   apps.Start (Seconds (start));
   apps.Stop (Seconds (stop));
 
+  apps = server3.Install (n.Get (2));
+  apps.Start (Seconds (start));
+  apps.Stop (Seconds (stop));
+
   //
   // Create a CdaClient application to send UDP datagrams from node zero to
   // node two.
   //
   uint32_t packetSize = 1100;
-  uint32_t maxPacketCount = 12000;
+  uint32_t maxPacketCount = 5000;
   Time interPacketInterval = MicroSeconds (0);
 
   CdaClientHelper client1 (i1i2.GetAddress (1), port1);
@@ -163,6 +171,15 @@ main (int argc, char *argv[])
 
   apps = client2.Install (n.Get (0));
   apps.Start (Seconds (start + 2));
+  apps.Stop (Seconds (stop));
+
+  CdaClientHelper client3 (i1i2.GetAddress (1), port3);
+  client2.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
+  client2.SetAttribute ("Interval", TimeValue (interPacketInterval));
+  client2.SetAttribute ("PacketSize", UintegerValue (packetSize));
+
+  apps = client3.Install (n.Get (0));
+  apps.Start (Seconds (start + 3));
   apps.Stop (Seconds (stop));
 
 

@@ -10,7 +10,7 @@
 
 namespace ns3 {
 
-/*
+
 //template <typename Item>
 class DRR: public DiffServ {
 public:
@@ -22,6 +22,7 @@ public:
     QUEUE_MODE_PACKETS,
     QUEUE_MODE_BYTES,
   };
+
   Ptr<Packet> Schedule (void);
   uint32_t Classify (Ptr<Packet> p);
   void SetMode (DRR::QueueMode mode);
@@ -29,12 +30,17 @@ public:
 
 private:
   bool DoEnqueue(Ptr<Packet> p);
-  Ptr<Packet> DoDequeue (void);
-  Ptr<const Packet> DoPeek (void) const;
-  Ptr<Packet> DoRemove (void);
+  // Ptr<Packet> DoDequeue (void);
+  // Ptr<const Packet> DoPeek (void) const;
+  // Ptr<Packet> DoRemove (void);
+
+  QueueMode m_mode;
+  int q_kind;
+  bool isNewRound;
+  std::vector<uint32_t> dc_arr;
 
 };
-*/
+
 }
 
 #endif /* DRR_H */

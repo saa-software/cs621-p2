@@ -69,7 +69,7 @@ main (int argc, char *argv[])
   // std::cout << "COMPRESSION PROTO: " << compressionProtocol << std::endl;
   // int proto = stoi (compressionProtocol);
   // End json parsing
-  
+
   // Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("6000p"));
   //
   // Users may find it convenient to turn on explicit debugging
@@ -101,7 +101,7 @@ main (int argc, char *argv[])
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-  p1p2.SetQueue("ns3::SPQ");
+  p1p2.SetQueue("ns3::SPQ<Packet>");
 
   NetDeviceContainer c0c1 = p0p1.Install (n0n1);
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);
@@ -167,7 +167,7 @@ main (int argc, char *argv[])
 
 
   AsciiTraceHelper ascii;
-  
+
   std::string fileName = "spq-";
   p0p1.EnablePcapAll (fileName, false);
   p1p2.EnablePcapAll (fileName, false);

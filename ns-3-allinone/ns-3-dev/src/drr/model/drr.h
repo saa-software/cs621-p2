@@ -10,9 +10,9 @@
 
 namespace ns3 {
 
-/* ... */
-template <typename Item>
-class DRR: public DiffServ<Item> {
+/*
+//template <typename Item>
+class DRR: public DiffServ {
 public:
   static TypeId GetTypeId (void);
   DRR();
@@ -24,8 +24,8 @@ public:
   };
   Ptr<Packet> Schedule (void);
   uint32_t Classify (Ptr<Packet> p);
-  void SetMode (DRR<Item>::QueueMode mode);
-  DRR<Item>::QueueMode GetMode (void) const;
+  void SetMode (DRR::QueueMode mode);
+  DRR::QueueMode GetMode (void) const;
 
 private:
   bool DoEnqueue(Ptr<Packet> p);
@@ -34,7 +34,7 @@ private:
   Ptr<Packet> DoRemove (void);
 
 };
-
+*/
 }
 
 #endif /* DRR_H */

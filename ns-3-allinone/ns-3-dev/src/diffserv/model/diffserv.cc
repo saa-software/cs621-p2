@@ -4,43 +4,55 @@
 
 namespace ns3 {
 
-  template <typename Item>
-  DiffServ<Item>::DiffServ() {
 
-  }
-  template <typename Item>
-  DiffServ<Item>::~DiffServ() {
+  DiffServ::DiffServ() {
 
   }
 
-  template <typename Item>
+  DiffServ::~DiffServ() {
+
+  }
+
+  TypeId
+  DiffServ::GetTypeId (void) {
+    static TypeId tid = TypeId (("ns3::DiffServ"))
+      .SetParent<Queue<Packet>>()
+      .SetGroupName("Network")
+    ;
+    return tid;
+  }
+
   void
-  DiffServ<Item>::SetMode (DiffServ<Item>::QueueMode mode) {
+  DiffServ::SetMode (DiffServ::QueueMode mode) {
     m_mode = mode;
   }
 
-  template <typename Item>
-  typename DiffServ<Item>::QueueMode
-  DiffServ<Item>::GetMode (void) const {
+
+  typename DiffServ::QueueMode
+  DiffServ::GetMode (void) const {
     return m_mode;
   }
 
-
-  template <typename Item>
   Ptr<Packet>
-  DiffServ<Item>::Schedule (void) {
-    //TODO: Change
-    Ptr<Packet> p = Create<Packet> (1024);
+  DiffServ::Dequeue (void){
+    Ptr<Packet> p = DoDequeue(Head());
     return p;
   }
 
-  template <typename Item>
-  uint32_t
-  DiffServ<Item>::Classify (Ptr<Packet> p) {
-    //TODO: CHANGE THIS
-    return 0;
+  bool
+  DiffServ::Enqueue(Ptr<Packet> p) {
+    return DoEnqueue(Tail(), p);
   }
 
-NS_OBJECT_TEMPLATE_CLASS_DEFINE (DiffServ,Packet);
-NS_OBJECT_TEMPLATE_CLASS_DEFINE (DiffServ,QueueDiscItem);
+  Ptr<const Packet>
+  DiffServ::Peek (void) const {
+    return DoPeek(Head());
+  }
+
+  Ptr<Packet>
+  DiffServ::Remove (void){
+    Ptr<Packet> p = DoRemove(Head());
+    return p;
+  }
+
 }

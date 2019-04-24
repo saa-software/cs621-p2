@@ -8,40 +8,40 @@ namespace ns3 {
   const int LOW = 0;
   const int HIGH = 1;
 
-  template <typename Item>
-  SPQ<Item>::SPQ() {
+//  template <typename Item>
+  SPQ::SPQ() {
 
   }
 
-  template <typename Item>
-  SPQ<Item>::~SPQ() {
+  // template <typename Item>
+  SPQ::~SPQ() {
 
   }
 
-  template <typename Item>
+  // template <typename Item>
   TypeId
-  SPQ<Item>::GetTypeId (void) {
-    static TypeId tid = TypeId (("ns3::SPQ<" + GetTypeParamName<SPQ<Item>>() + ">").c_str())
-      .SetParent<Queue<Item>>()
+  SPQ::GetTypeId (void) {
+    static TypeId tid = TypeId (("ns3::SPQ"))
+      .SetParent<DiffServ>()
       .SetGroupName("Network")
-      .template AddConstructor<SPQ<Item>> ()
+      .template AddConstructor<SPQ> ()
     ;
     return tid;
   }
 
-  template <typename Item>
+  //template <typename Item>
   Ptr<Packet>
-  SPQ<Item>::Schedule (void) {
+  SPQ::Schedule (void) {
     //check for the high priority queue TC
     Ptr<Packet> p;
     //Dequeue high if not empty
-    if(!DiffServ<Item>::q_class[HIGH]->isEmpty()) {
-      p = DiffServ<Item>::q_class[HIGH]->Dequeue();
+    if(!q_class[HIGH]->isEmpty()) {
+      p = q_class[HIGH]->Dequeue();
       return p;
     } else { //if high is empty
-      if(!DiffServ<Item>::q_class[LOW]->isEmpty()) {
+      if(!q_class[LOW]->isEmpty()) {
         //dequeue low
-        p = DiffServ<Item>::q_class[LOW]->Dequeue();
+        p = q_class[LOW]->Dequeue();
         return p;
       } else {
         return 0;
@@ -50,35 +50,35 @@ namespace ns3 {
 
   }
 
-  template <typename Item>
+  //template <typename Item>
   uint32_t
-  SPQ<Item>::Classify (Ptr<Packet> p) {
-    if(DiffServ<Item>::q_class[LOW]->match(p)) {
+  SPQ::Classify (Ptr<Packet> p) {
+    if(q_class[LOW]->match(p)) {
       return 0;
     } else {
       return 1;
     }
   }
 
-  template <typename Item>
+  //template <typename Item>
   bool
-  SPQ<Item>::DoEnqueue(Ptr<Packet> p) {
+  SPQ::DoEnqueue(Ptr<Packet> p) {
     //call Classify
     bool res;
     uint32_t priorityLevel = Classify(p);
     if(priorityLevel == 1) {
-      res = DiffServ<Item>::q_class[HIGH]->Enqueue(p);
+      res = q_class[HIGH]->Enqueue(p);
     } else {
-      res = DiffServ<Item>::q_class[LOW]->Enqueue(p);
+      res = q_class[LOW]->Enqueue(p);
     }
     //TODO: chekc for the max packets/bytes size
     //WHEN TO drop packets??!?
     return res;
   }
 
-  template <typename Item>
+//  template <typename Item>
   Ptr<Packet>
-  SPQ<Item>::DoDequeue (void) {
+  SPQ::DoDequeue (void) {
     //call Schedule
     Ptr<Packet> p = Schedule();
     return p;
@@ -88,19 +88,20 @@ namespace ns3 {
 * Peek the front item in the queue without removing it.
   Retun 0 if queue(s) is(are) empty.
 */
-  template <typename Item>
+//  template <typename Item>
   Ptr<const Packet>
-  SPQ<Item>::DoPeek (void) const {
+  SPQ::DoPeek (void) const {
     Ptr<Packet> p;
 
-    if(!DiffServ<Item>::q_class[HIGH]->isEmpty()) {
+    if(!q_class[HIGH]->isEmpty()) {
       //TODO: need getter for m_queue!
-     p = DiffServ<Item>::q_class[HIGH]->m_queue.front();
+     p = q_class[HIGH]->m_queue.front();
      return p;
     } else { //if high is empty
-      if(!DiffServ<Item>::q_class[LOW]->isEmpty()) {
+      if(!q_class[LOW]->isEmpty()) {
         //dequeue low
-        p = DiffServ<Item>::q_class[LOW]->m_queue.front();
+        p = q_class[LOW]->m_queue.front();
+        return p;
       } else { //if both are empty
         return 0;
       }
@@ -111,18 +112,18 @@ namespace ns3 {
   /**
    Pull the item to drop from the queue
   */
-  template <typename Item>
+  //template <typename Item>
   Ptr<Packet>
-  SPQ<Item>::DoRemove (void) {
+  SPQ::DoRemove (void) {
     Ptr<Packet> p;
     //Dequeue high if not empty
-    if(!DiffServ<Item>::q_class[HIGH]->isEmpty()) {
-      p = DiffServ<Item>::q_class[HIGH]->Dequeue();
+    if(!q_class[HIGH]->isEmpty()) {
+      p = q_class[HIGH]->Dequeue();
       return p;
     } else { //if high is empty
-      if(!DiffServ<Item>::q_class[LOW]->isEmpty()) {
+      if(!q_class[LOW]->isEmpty()) {
         //dequeue low
-        p = DiffServ<Item>::q_class[LOW]->Dequeue();
+        p = q_class[LOW]->Dequeue();
         return p;
       } else {
         return 0;
@@ -132,18 +133,18 @@ namespace ns3 {
   }
 
 
-  template <typename Item>
+//  template <typename Item>
   void
-  SPQ<Item>::SetMode (SPQ<Item>::QueueMode mode) {
-    DiffServ<Item>::m_mode = mode;
+  SPQ::SetMode (SPQ::QueueMode mode) {
+    m_mode = mode;
   }
 
-  template <typename Item>
-  typename SPQ<Item>::QueueMode
-  SPQ<Item>::GetMode (void) const {
-    return  DiffServ<Item>::m_mode;
+  //template <typename Item>
+  typename SPQ::QueueMode
+  SPQ::GetMode (void) const {
+    return m_mode;
   }
 
-NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,Packet);
-NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,QueueDiscItem);
+// NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,Packet);
+// NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,QueueDiscItem);
 }

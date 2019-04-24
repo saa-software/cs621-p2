@@ -4,24 +4,24 @@
 
 namespace ns3 {
 
-/* ... */
-template <typename Item>
-DRR<Item>::DRR() {
+/*
+//template <typename Item>
+DRR::DRR() {
 
 }
 
-template <typename Item>
-DRR<Item>::~DRR() {
+//template <typename Item>
+DRR::~DRR() {
 
 }
 
-template <typename Item>
+//template <typename Item>
 TypeId
-DRR<Item>::GetTypeId (void) {
-  static TypeId tid = TypeId (("ns3::DRR<" + GetTypeParamName<DRR<Item>>() + ">").c_str())
-    .SetParent<Queue<Item>>()
+DRR::GetTypeId (void) {
+  static TypeId tid = TypeId (("ns3::DRR<" + GetTypeParamName<DRR>() + ">").c_str())
+    .SetParent<DiffServ>()
     .SetGroupName("Network")
-    .template AddConstructor<DRR<Item>> ()
+    .template AddConstructor<DRR> ()
   ;
   return tid;
 }
@@ -63,5 +63,5 @@ DRR<Item>::GetTypeId (void) {
 //   Ptr<Packet> p = Create<Packet> (1024);
 //   return p;
 // }
-
+*/
 }

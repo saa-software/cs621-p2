@@ -12,8 +12,8 @@
 namespace ns3 {
 
 /* ... */
-template <typename Item>
-class DiffServ : public Queue<Item>{
+//template <typename Item>
+class DiffServ : public Queue<Packet>{
 public:
   static TypeId GetTypeId (void);
   DiffServ();
@@ -23,24 +23,31 @@ public:
     QUEUE_MODE_PACKETS,
     QUEUE_MODE_BYTES,
   };
-  void SetMode (DiffServ<Item>::QueueMode mode);
+  void SetMode (DiffServ::QueueMode mode);
  //  //do i need constant for this?
-  DiffServ<Item>::QueueMode GetMode (void) const;
-  virtual Ptr<Packet> Schedule (void);
-  virtual uint32_t Classify (Ptr<Packet> p);
+  DiffServ::QueueMode GetMode (void) const;
+  virtual Ptr<Packet> Schedule (void)=0;
+  virtual uint32_t Classify (Ptr<Packet> p)=0;
+  virtual Ptr<Packet> Dequeue (void);
+  virtual bool Enqueue (Ptr<Packet> p);
+  virtual Ptr<const Packet> Peek (void) const;
+  virtual Ptr<Packet> Remove (void);
 
 private:
-  virtual bool DoEnqueue(Ptr<Packet> p);
-  virtual Ptr<Packet> DoDequeue (void);
-  virtual Ptr<const Packet> DoPeek (void) const;
-  virtual Ptr<Packet> DoRemove (void);
-
-
-
+  // virtual bool DoEnqueue(Ptr<Packet> p);
+  // virtual Ptr<Packet> DoDequeue (void);
+  // virtual Ptr<const Packet> DoPeek (void) const;
+  // virtual Ptr<Packet> DoRemove (void);
+  using Queue<Packet>::Head;
+  using Queue<Packet>::Tail;
+  using Queue<Packet>::DoEnqueue;
+  using Queue<Packet>::DoDequeue;
+  using Queue<Packet>::DoRemove;
+  using Queue<Packet>::DoPeek;
 
 protected:
   std::vector<TrafficClass*> q_class;
-  DiffServ<Item>::QueueMode m_mode;
+  QueueMode m_mode;
 
 };
 

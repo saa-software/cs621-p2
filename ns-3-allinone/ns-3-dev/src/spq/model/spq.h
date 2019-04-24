@@ -11,8 +11,8 @@
 namespace ns3 {
 
 /* ... */
-template <typename Item>
-class SPQ: public DiffServ<Item> {
+// template <typename Item>
+class SPQ: public DiffServ {
 public:
   static TypeId GetTypeId (void);
   SPQ ();
@@ -24,17 +24,17 @@ public:
   };
   Ptr<Packet> Schedule (void);
   uint32_t Classify (Ptr<Packet> p);
-  void SetMode (SPQ<Item>::QueueMode mode);
-  SPQ<Item>::QueueMode GetMode (void) const;
+  void SetMode (SPQ::QueueMode mode);
+  SPQ::QueueMode GetMode (void) const;
 
 private:
    bool DoEnqueue(Ptr<Packet> p);
    Ptr<Packet> DoDequeue (void);
    Ptr<const Packet> DoPeek (void) const;
    Ptr<Packet> DoRemove (void);
-  //std::vector<TrafficClass*> q_class;
+   std::vector<TrafficClass*> q_class;
 
-  SPQ<Item>::QueueMode m_mode;
+  QueueMode m_mode;
 };
 
 }

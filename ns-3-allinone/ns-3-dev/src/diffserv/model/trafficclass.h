@@ -21,6 +21,13 @@ class TrafficClass : public Object {
 * \ingroup diffserv
 */
 public:
+	enum QueueMode
+	  {
+	    QUEUE_MODE_PACKETS,
+	    QUEUE_MODE_BYTES,
+	  };
+
+	void SetMode (TrafficClass::QueueMode mode);
 	/**
 	* A collection of filters for the class, any of which should match
 	*/
@@ -123,9 +130,9 @@ private:
 	bool isDefault;
 
 	/**
-	* TODO FIX THIS
+	* Mode of the queue
 	*/
-	string m_queueMode;
+	TrafficClass::QueueMode m_mode;
 
 
 };

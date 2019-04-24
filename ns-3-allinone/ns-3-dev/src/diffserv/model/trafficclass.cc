@@ -48,28 +48,37 @@ TrafficClass::~TrafficClass ()
 	NS_LOG_FUNCTION_NOARGS ();
 }
 
+void 
+TrafficClass::SetMode (TrafficClass::QueueMode mode)
+{
+	m_mode = mode;
+}
+
 bool
 TrafficClass::Enqueue (Ptr<Packet> p)
 {
-	if (m_queueMode == "bytes") //placeholder
-	{
-		if (bytes + p->GetSize () <= maxBytes) {
-			//enqueue
-			m_queue.push(p);
-			bytes += p->GetSize ();
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		if (packets + 1 <= maxPackets) {
-			m_queue.push(p);
-			packets++;
-			return true;
-		} else {
-			return false;
-		}
+	switch (m_mode) {
+		case QUEUE_MODE_PACKETS:
+			if (bytes + p->GetSize () <= maxBytes) {
+				//enqueue
+				m_queue.push(p);
+				bytes += p->GetSize ();
+				return true;
+			} else {
+				return false;
+			}
+			break;
+		case QUEUE_MODE_BYTES:
+			if (packets + 1 <= maxPackets) {
+				m_queue.push(p);
+				packets++;
+				return true;
+			} else {
+				return false;
+			}
+		break;
 	}
+	return false;
 }
 
 Ptr<Packet>
@@ -77,11 +86,13 @@ TrafficClass::Dequeue ()
 {
 	Ptr<Packet> p = m_queue.front();
 	m_queue.pop();
-	if (m_queueMode == "bytes")
-	{
-		bytes -= p->GetSize ();
-	} else {
-		packets--;
+	switch (m_mode) {
+		case QUEUE_MODE_BYTES:
+			bytes -= p->GetSize ();
+			break;
+		case QUEUE_MODE_PACKETS:
+			packets--;
+			break;
 	}
 	return p;
 }
@@ -107,12 +118,15 @@ TrafficClass::SetFilters(vector<Filter*> f)
 bool
 TrafficClass::isEmpty() 
 {
-	if (m_queueMode == "bytes")
-	{
-		return bytes == 0;
-	} else {
-		return packets == 0;
+	switch (m_mode){
+		case QUEUE_MODE_BYTES:
+			return bytes == 0;
+			break;
+		case QUEUE_MODE_PACKETS:
+			return packets == 0;
+			break;
 	}
+	return false;
 }
 
 }

@@ -126,7 +126,7 @@ main (int argc, char *argv[])
 
   Packet::EnablePrinting ();
   double start = 1.0;
-  double stop = 50.0;
+  double stop = 300.0;
   uint16_t port1 = 9; // well-known echo port number
   uint16_t port2 = 10; // well-known echo port number
 
@@ -145,14 +145,18 @@ main (int argc, char *argv[])
   // Create a CdaClient application to send UDP datagrams from node zero to
   // node two.
   //
-  uint32_t packetSize = 1100;
-  uint32_t maxPacketCount = 5000;
-  Time interPacketInterval = MicroSeconds (0);
+  uint32_t packetSize1 = 1500;
+  uint32_t maxPacketCount1 = 10000;
+  Time interPacketInterval1 = MicroSeconds (2);
+
+  uint32_t packetSize2 = 1500;
+  uint32_t maxPacketCount2 = 10000;
+  Time interPacketInterval2 = MicroSeconds (1);
 
   CdaClientHelper client1 (i1i2.GetAddress (1), port1);
-  client1.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
-  client1.SetAttribute ("Interval", TimeValue (interPacketInterval));
-  client1.SetAttribute ("PacketSize", UintegerValue (packetSize));
+  client1.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount1));
+  client1.SetAttribute ("Interval", TimeValue (interPacketInterval1));
+  client1.SetAttribute ("PacketSize", UintegerValue (packetSize1));
 
   apps = client1.Install (n.Get (0));
   apps.Start (Seconds (start + 1));
@@ -160,9 +164,9 @@ main (int argc, char *argv[])
 
 
   CdaClientHelper client2 (i1i2.GetAddress (1), port2);
-  client2.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
-  client2.SetAttribute ("Interval", TimeValue (interPacketInterval));
-  client2.SetAttribute ("PacketSize", UintegerValue (packetSize));
+  client2.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount2));
+  client2.SetAttribute ("Interval", TimeValue (interPacketInterval2));
+  client2.SetAttribute ("PacketSize", UintegerValue (packetSize2));
 
   apps = client2.Install (n.Get (0));
   apps.Start (Seconds (start + 2));

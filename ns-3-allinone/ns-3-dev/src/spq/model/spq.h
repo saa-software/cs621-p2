@@ -17,7 +17,7 @@ class SPQ : public DiffServ<Item> {
 public:
   static TypeId GetTypeId (void);
 
-  SPQ ();
+  SPQ ();   
   ~SPQ();
 
   enum QueueMode

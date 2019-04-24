@@ -15,6 +15,12 @@ namespace ns3 {
       .SetParent<DiffServ<Item> >()
       .SetGroupName("Network")
       .template AddConstructor<SPQ<Item>> ()
+      .AddAttribute("Mode",
+                    "Whether to use bytes (see MaxBytes) or packets (see MaxPackets) as the maximum queue size metric.",
+                    EnumValue(QUEUE_MODE_PACKETS),
+                    MakeEnumAccessor(&SPQ<Item>::SetMode,&SPQ<Item>::GetMode),
+                    MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
+
     ;
     return tid;
   }
@@ -53,10 +59,10 @@ namespace ns3 {
   template <typename Item>
   uint32_t
   SPQ<Item>::Classify (Ptr<Item> p) {
-    if(q_class[LOW]->match(p)) {
-      return 0;
-    } else {
+    if(q_class[HIGH]->match(p)) {
       return 1;
+    } else {
+      return 0;
     }
   }
 
@@ -92,7 +98,6 @@ namespace ns3 {
     Ptr<Item> p;
 
     if(!q_class[HIGH]->isEmpty()) {
-      //TODO: need getter for m_queue!
      p = q_class[HIGH]->m_queue.front();
      return p;
     } else { //if high is empty

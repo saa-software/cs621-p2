@@ -86,7 +86,7 @@ main (int argc, char *argv[])
   // std::string compressionProtocol = Json::writeString (wbuilder, outputCompressionProtocol);
   // std::cout << "COMPRESSION PROTO: " << compressionProtocol << std::endl;
   // int proto = stoi (compressionProtocol);
-  
+
   // End json parsing
 
   // Explicitly create the nodes required by the topology.
@@ -174,7 +174,7 @@ main (int argc, char *argv[])
 
 
   AsciiTraceHelper ascii;
-  
+
   std::string fileName = "spq-";
   p0p1.EnablePcapAll (fileName, false);
   p1p2.EnablePcapAll (fileName, false);

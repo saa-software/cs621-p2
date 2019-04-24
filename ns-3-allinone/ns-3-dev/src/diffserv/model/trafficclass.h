@@ -80,6 +80,12 @@ public:
 	void SetFilters(vector<Filter*> f);
 
 
+	/**
+	* The queue which the TrafficClass has management of.
+	* \see class Queue
+	*/
+	 queue<Ptr<Packet>> m_queue;
+
 private:
 	/**
 	* Count of bytes in Queue
@@ -117,12 +123,9 @@ private:
 	bool isDefault;
 
 	/**
-	* The queue which the TrafficClass has management of.
-	* \see class Queue
+	* TODO FIX THIS
 	*/
-	 queue<Ptr<Packet>> m_queue;
-
-	 string m_queueMode;
+	string m_queueMode;
 
 
 };

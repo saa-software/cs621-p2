@@ -27,6 +27,7 @@
 #include "ns3/flow-monitor-helper.h"
 #include "ns3/ipv4-global-routing-helper.h"
 #include "src/json/json.h"
+#include "ns3/spq.h"
 
 using namespace ns3;
 
@@ -100,7 +101,7 @@ main (int argc, char *argv[])
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-  p1p2.SetQueue("ns3::SPQ", "MaxPackets", StringValue ("10"));
+  p1p2.SetQueue("ns3::SPQ");
 
   NetDeviceContainer c0c1 = p0p1.Install (n0n1);
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);

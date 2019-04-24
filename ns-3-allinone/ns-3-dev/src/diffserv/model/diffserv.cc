@@ -41,4 +41,6 @@ namespace ns3 {
     return 0;
   }
 
+NS_OBJECT_TEMPLATE_CLASS_DEFINE (DiffServ,Packet);
+NS_OBJECT_TEMPLATE_CLASS_DEFINE (DiffServ,QueueDiscItem);
 }

@@ -143,4 +143,7 @@ namespace ns3 {
   SPQ<Item>::GetMode (void) const {
     return  DiffServ<Item>::m_mode;
   }
+
+NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,Packet);
+NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,QueueDiscItem);
 }

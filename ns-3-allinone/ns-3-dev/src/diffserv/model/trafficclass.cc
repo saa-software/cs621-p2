@@ -58,7 +58,7 @@ bool
 TrafficClass::Enqueue (Ptr<Packet> p)
 {
 	switch (m_mode) {
-		case QUEUE_MODE_PACKETS:
+		case QUEUE_MODE_BYTES:
 			if (bytes + p->GetSize () <= maxBytes) {
 				//enqueue
 				m_queue.push(p);
@@ -68,7 +68,7 @@ TrafficClass::Enqueue (Ptr<Packet> p)
 				return false;
 			}
 			break;
-		case QUEUE_MODE_BYTES:
+		case QUEUE_MODE_PACKETS:
 			if (packets + 1 <= maxPackets) {
 				m_queue.push(p);
 				packets++;

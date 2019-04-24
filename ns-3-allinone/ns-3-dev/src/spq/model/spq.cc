@@ -8,37 +8,38 @@ namespace ns3 {
   const int LOW = 0;
   const int HIGH = 1;
 
-//  template <typename Item>
-  SPQ::SPQ() {
-
-  }
-
-  // template <typename Item>
-  SPQ::~SPQ() {
-
-  }
-
-  // template <typename Item>
+  template <typename Item>
   TypeId
-  SPQ::GetTypeId (void) {
-    static TypeId tid = TypeId (("ns3::SPQ"))
-      .SetParent<DiffServ>()
+  SPQ<Item>::GetTypeId (void) {
+    static TypeId tid = TypeId (("ns3::SPQ<" + GetTypeParamName<SPQ<Item> > () + ">").c_str ())
+      .SetParent<DiffServ<Item> >()
       .SetGroupName("Network")
-      .AddConstructor<SPQ> ()
+      .template AddConstructor<SPQ<Item>> ()
       .AddAttribute("Mode",
                     "Whether to use bytes (see MaxBytes) or packets (see MaxPackets) as the maximum queue size metric.",
                     EnumValue(QUEUE_MODE_PACKETS),
-                    MakeEnumAccessor(&SPQ::SetMode,&SPQ::GetMode),
+                    MakeEnumAccessor(&SPQ<Item>::SetMode,&SPQ<Item>::GetMode),
                     MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
+
     ;
     return tid;
   }
 
-  //template <typename Item>
-  Ptr<Packet>
-  SPQ::Schedule (void) {
+  template <typename Item>
+  SPQ<Item>::SPQ () {
+
+  }
+
+  template <typename Item>
+  SPQ<Item>::~SPQ () {
+
+  }
+
+  template <typename Item>
+  Ptr<Item>
+  SPQ<Item>::Schedule (void) {
     //check for the high priority queue TC
-    Ptr<Packet> p;
+    Ptr<Item> p;
     //Dequeue high if not empty
     if(!q_class[HIGH]->isEmpty()) {
       p = q_class[HIGH]->Dequeue();
@@ -55,9 +56,9 @@ namespace ns3 {
 
   }
 
-  //template <typename Item>
+  template <typename Item>
   uint32_t
-  SPQ::Classify (Ptr<Packet> p) {
+  SPQ<Item>::Classify (Ptr<Item> p) {
     if(q_class[HIGH]->match(p)) {
       return 1;
     } else {
@@ -65,9 +66,9 @@ namespace ns3 {
     }
   }
 
-  //template <typename Item>
+  template <typename Item>
   bool
-  SPQ::DoEnqueue(Ptr<Packet> p) {
+  SPQ<Item>::DoEnqueue(Ptr<Item> p) {
     //call Classify
     bool res;
     uint32_t priorityLevel = Classify(p);
@@ -76,15 +77,14 @@ namespace ns3 {
     } else {
       res = q_class[LOW]->Enqueue(p);
     }
-
     return res;
   }
 
-//  template <typename Item>
-  Ptr<Packet>
-  SPQ::DoDequeue (void) {
+  template <typename Item>
+  Ptr<Item>
+  SPQ<Item>::DoDequeue (void) {
     //call Schedule
-    Ptr<Packet> p = Schedule();
+    Ptr<Item> p = Schedule();
     return p;
   }
 
@@ -92,10 +92,10 @@ namespace ns3 {
 * Peek the front item in the queue without removing it.
   Retun 0 if queue(s) is(are) empty.
 */
-//  template <typename Item>
-  Ptr<const Packet>
-  SPQ::DoPeek (void) const {
-    Ptr<Packet> p;
+  template <typename Item>
+  Ptr<const Item>
+  SPQ<Item>::DoPeek (void) const {
+    Ptr<Item> p;
 
     if(!q_class[HIGH]->isEmpty()) {
      p = q_class[HIGH]->m_queue.front();
@@ -115,10 +115,10 @@ namespace ns3 {
   /**
    Pull the item to drop from the queue
   */
-  //template <typename Item>
-  Ptr<Packet>
-  SPQ::DoRemove (void) {
-    Ptr<Packet> p;
+  template <typename Item>
+  Ptr<Item>
+  SPQ<Item>::DoRemove (void) {
+    Ptr<Item> p;
     //Dequeue high if not empty
     if(!q_class[HIGH]->isEmpty()) {
       p = q_class[HIGH]->Dequeue();
@@ -136,18 +136,18 @@ namespace ns3 {
   }
 
 
-//  template <typename Item>
+  template <typename Item>
   void
-  SPQ::SetMode (SPQ::QueueMode mode) {
+  SPQ<Item>::SetMode (SPQ<Item>::QueueMode mode) {
     m_mode = mode;
   }
 
-  //template <typename Item>
-  typename SPQ::QueueMode
-  SPQ::GetMode (void) const {
+  template <typename Item>
+  typename SPQ<Item>::QueueMode
+  SPQ<Item>::GetMode (void) const {
     return m_mode;
   }
 
-// NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,Packet);
-// NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,QueueDiscItem);
+  NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,Packet);
+  // NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,QueueDiscItem);
 }

@@ -10,38 +10,38 @@ namespace ns3 {
   //TODO: create a getter/setter?
   const uint32_t QUANTUM = 100;
 
-//template <typename Item>
-DRR::DRR() {
+template <typename Item>
+DRR<Item>::DRR() {
   q_kind = 2;
   isNewRound = true;
   dc_arr = {0,0,0};
 }
 
-//template <typename Item>
-DRR::~DRR() {
+template <typename Item>
+DRR<Item>::~DRR() {
 
 }
 
-//template <typename Item>
+template <typename Item>
 TypeId
-DRR::GetTypeId (void) {
-  static TypeId tid = TypeId (("ns3::DRR"))
-    .SetParent<DiffServ>()
+DRR<Item>::GetTypeId (void) {
+  static TypeId tid = TypeId (("ns3::DRR<" + GetTypeParamName<DRR<Item>>() + ">").c_str())
+    .SetParent<DiffServ<Item>>()
     .SetGroupName("Network")
-    .AddConstructor<DRR> ()
+    .template AddConstructor<DRR<Item>> ()
     .AddAttribute("Mode",
                   "Whether to use bytes (see MaxBytes) or packets (see MaxPackets) as the maximum queue size metric.",
                   EnumValue(QUEUE_MODE_PACKETS),
-                  MakeEnumAccessor(&DRR::SetMode,&DRR::GetMode),
+                  MakeEnumAccessor(&DRR<Item>::SetMode,&DRR<Item>::GetMode),
                   MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
   ;
   return tid;
 }
 //
-// template <typename Item>
-Ptr<Packet>
-DRR::Schedule (void) {
-  switch (q_kind)
+template <typename Item>
+Ptr<Item>
+DRR<Item>::Schedule (void) {
+  switch (this->q_kind)
   {
     case 2:
             if(isNewRound) { //if scheduling for the first time, inc dc
@@ -49,7 +49,7 @@ DRR::Schedule (void) {
               isNewRound = false;
             }
             if(!q_class[HIGH]->isEmpty()) {
-              Ptr<Packet> p = q_class[HIGH]->m_queue.front();
+              Ptr<Item> p = q_class[HIGH]->m_queue.front();
               if(p->GetSize() <= dc_arr[HIGH]) {
                 Ptr<Packet> res = q_class[HIGH]->Dequeue();
                 dc_arr[HIGH] -= res->GetSize();
@@ -66,9 +66,9 @@ DRR::Schedule (void) {
               isNewRound = false;
             }
             if(!q_class[MED]->isEmpty()) {
-              Ptr<Packet> p = q_class[MED]->m_queue.front();
+              Ptr<Item> p = q_class[MED]->m_queue.front();
               if(p->GetSize() <= dc_arr[MED]) {
-                Ptr<Packet> res = q_class[MED]->Dequeue();
+                Ptr<Item> res = q_class[MED]->Dequeue();
                 dc_arr[MED] -= res->GetSize();
                 return res;
               } else {
@@ -83,9 +83,9 @@ DRR::Schedule (void) {
               isNewRound = false;
             }
             if(!q_class[LOW]->isEmpty()) {
-              Ptr<Packet> p = q_class[LOW]->m_queue.front();
+              Ptr<Item> p = q_class[LOW]->m_queue.front();
               if(p->GetSize() <= dc_arr[LOW]) {
-                Ptr<Packet> res = q_class[LOW]->Dequeue();
+                Ptr<Item> res = q_class[LOW]->Dequeue();
                 dc_arr[LOW] -= res->GetSize();
                 return res;
               } else {
@@ -100,9 +100,9 @@ DRR::Schedule (void) {
       return 0;
 }
 
-
+template <typename Item>
 uint32_t
-DRR::Classify (Ptr<Packet> p) {
+DRR<Item>::Classify (Ptr<Item> p) {
   if(q_class[HIGH]->match(p)) {
     return 2;
   } else if(q_class[MED]->match(p)) {
@@ -112,9 +112,9 @@ DRR::Classify (Ptr<Packet> p) {
   }
 }
 
-
+template <typename Item>
 bool
-DRR::DoEnqueue(Ptr<Packet> p) {
+DRR<Item>::DoEnqueue(Ptr<Item> p) {
   uint32_t weight = Classify(p);
   if(weight == 2) {
     return q_class[HIGH]->Enqueue(p);
@@ -145,14 +145,15 @@ DRR::DoEnqueue(Ptr<Packet> p) {
 //   return p;
 // }
 
+template <typename Item>
 void
-DRR::SetMode (DRR::QueueMode mode) {
+DRR<Item>::SetMode (DRR<Item>::QueueMode mode) {
   m_mode = mode;
 }
 
-//template <typename Item>
-typename DRR::QueueMode
-DRR::GetMode (void) const {
+template <typename Item>
+typename DRR<Item>::QueueMode
+DRR<Item>::GetMode (void) const {
   return m_mode;
 }
 

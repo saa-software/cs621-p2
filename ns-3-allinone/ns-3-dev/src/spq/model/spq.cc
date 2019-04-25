@@ -27,8 +27,10 @@ namespace ns3 {
 
   template <typename Item>
   SPQ<Item>::SPQ () {
-    q_class[LOW] = new TrafficClass;
-    q_class[HIGH] = new TrafficClass;
+    q_class.push_back(new TrafficClass());
+    q_class.push_back(new TrafficClass());
+    q_class[LOW]->SetPriorityLevel(LOW);
+    q_class[HIGH]->SetPriorityLevel(HIGH);
   }
 
   template <typename Item>

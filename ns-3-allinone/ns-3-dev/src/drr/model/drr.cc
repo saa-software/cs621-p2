@@ -12,9 +12,13 @@ namespace ns3 {
 
 template <typename Item>
 DRR<Item>::DRR() {
-  q_class[LOW] = new TrafficClass;
-  q_class[MED] = new TrafficClass;
-  q_class[HIGH] = new TrafficClass;
+  q_class.push_back(new TrafficClass());
+  q_class.push_back(new TrafficClass());
+  q_class.push_back(new TrafficClass());
+  q_class[LOW]->SetWeight(LOW);
+  q_class[MED]->SetWeight(MED);
+  q_class[HIGH]->SetWeight(HIGH);
+
   q_kind = 2;
   isNewRound = true;
   dc_arr = {0,0,0};

@@ -17,7 +17,7 @@ class SPQ : public DiffServ<Item> {
 public:
   static TypeId GetTypeId (void);
 
-  SPQ ();   
+  SPQ ();
   ~SPQ();
 
   enum QueueMode
@@ -35,7 +35,7 @@ private:
    Ptr<Item> DoDequeue (void);
    Ptr<const Item> DoPeek (void) const;
    Ptr<Item> DoRemove (void);
-   std::vector<TrafficClass*> q_class;
+  std::vector<TrafficClass*> q_class;
 
   QueueMode m_mode;
 };

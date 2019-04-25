@@ -12,6 +12,9 @@ namespace ns3 {
 
 template <typename Item>
 DRR<Item>::DRR() {
+  q_class[LOW] = new TrafficClass;
+  q_class[MED] = new TrafficClass;
+  q_class[HIGH] = new TrafficClass;
   q_kind = 2;
   isNewRound = true;
   dc_arr = {0,0,0};
@@ -124,12 +127,13 @@ DRR<Item>::DoEnqueue(Ptr<Item> p) {
     return q_class[LOW]->Enqueue(p);
   }
 }
-//
-// template <typename Item>
-// Ptr<Packet>
-// DRR<Item>::DoDequeue (void) {
-//
-// }
+
+template <typename Item>
+Ptr<Item>
+DRR<Item>::DoDequeue (void) {
+  Ptr<Item> p = Schedule();
+  return p;
+}
 //
 // template <typename Item>
 // Ptr<const Packet>

@@ -32,6 +32,7 @@ private:
 
 public:
   bool match (Ptr<Packet> p);
+  void set (Ipv4Address ip);
 };
 
 class Source_Port_Number : public FilterElements
@@ -41,6 +42,7 @@ private:
 
 public:
   bool match (Ptr<Packet> p);
+  void set (uint16_t port);
 };
 
 class Source_Mask : public FilterElements
@@ -50,6 +52,7 @@ private:
 
 public:
   bool match (Ptr<Packet> p);
+  void set (Ipv4Mask mask);
 };
 
 class Destination_Ip_Address : public FilterElements
@@ -59,6 +62,7 @@ private:
 
 public:
   bool match (Ptr<Packet> p);
+  void set (Ipv4Address ip);
 };
 
 class Destination_Port_Number : public FilterElements
@@ -68,6 +72,7 @@ private:
 
 public:
   bool match (Ptr<Packet> p);
+  void set (uint16_t port);
 };
 
 class Destination_Mask : public FilterElements
@@ -77,6 +82,7 @@ private:
 
 public:
   bool match (Ptr<Packet> p);
+  void set (Ipv4Mask mask);
 };
 
 class Protocol_Number : public FilterElements
@@ -86,6 +92,7 @@ private:
 
 public:
   bool match (Ptr<Packet> p);
+  void set (u_int32_t protocol);
 };
 } // namespace ns3
 

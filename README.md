@@ -2,7 +2,7 @@
 
 ## Installation
 The best way to install this NS3 project is to clone this repository, and then go through the [NS3 installation guide](https://www.nsnam.org/wiki/Installation)
-<br>
+<br />
 The only supported platform for this project in Linux, Ubuntu LTS versions 16.04 or 18.04 are the reccomended distribution.
 Running Ubuntu on a virtual machine installed on a macOSor Windows machine is also a viable option.
 

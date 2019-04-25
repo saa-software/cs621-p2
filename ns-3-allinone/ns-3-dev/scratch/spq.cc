@@ -103,8 +103,8 @@ main (int argc, char *argv[])
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-  p1p2.SetQueue("ns3::SPQ");
-  // p1p2.SetQueue("ns3::SPQ", "Mode", (StringValue) "QUEUE_MODE_PACKETS");
+  // p1p2.SetQueue("ns3::SPQ");
+  p1p2.SetQueue("ns3::SPQ", "Mode", (StringValue) "QUEUE_MODE_PACKETS");
 
   NetDeviceContainer c0c1 = p0p1.Install (n0n1);
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);
@@ -145,11 +145,11 @@ main (int argc, char *argv[])
   // Create a CdaClient application to send UDP datagrams from node zero to
   // node two.
   //
-  uint32_t packetSize1 = 1500;
+  uint32_t packetSize1 = 1000;
   uint32_t maxPacketCount1 = 10000;
-  Time interPacketInterval1 = MicroSeconds (2);
+  Time interPacketInterval1 = MicroSeconds (1);
 
-  uint32_t packetSize2 = 1500;
+  uint32_t packetSize2 = 1000;
   uint32_t maxPacketCount2 = 10000;
   Time interPacketInterval2 = MicroSeconds (1);
 

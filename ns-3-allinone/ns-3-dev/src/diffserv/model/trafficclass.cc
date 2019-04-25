@@ -37,7 +37,7 @@ TrafficClass::TrafficClass ()
 	packets = 0;
 	maxPackets = 0;
 	maxBytes = 0;
-	weight = 0.0;
+	weight = 0;
 	priority_level = 0;
 	isDefault = false;
 	filters = {};
@@ -108,6 +108,18 @@ TrafficClass::match (Ptr<Packet> p)
 	}
 	return false;
 }
+
+void TrafficClass::SetPriorityLevel(uint32_t l)
+{
+	priority_level = l;
+}
+
+
+void TrafficClass::SetWeight(uint32_t w)
+{
+	weight = w;
+}
+
 
 void
 TrafficClass::SetFilters(vector<Filter*> f)

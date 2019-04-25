@@ -93,9 +93,9 @@ public:
 	*/
 	 queue<Ptr<Packet>> m_queue;
 
-	 void SetPriorityLevel(uint32_t w);
+	 void SetPriorityLevel(int w);
 
-	 void SetWeight(uint32_t w);
+	 void SetWeight(int w);
 
 private:
 	/**
@@ -121,12 +121,12 @@ private:
 	/**
 	* Weight of TrafficClass (only applicable if QoS mechanism uses weight)
 	*/
-	uint32_t weight;
+	int weight;
 
 	/**
 	* Priority level of TrafficClass (only applicable if QoS mechanism uses priority level)
 	*/
-	uint32_t priority_level;
+	int priority_level;
 
 	/**
 	* If it is default or not

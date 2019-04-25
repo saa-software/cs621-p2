@@ -103,6 +103,7 @@ main (int argc, char *argv[])
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
+
   // p1p2.SetQueue("ns3::SPQ");
   p1p2.SetQueue("ns3::SPQ", "Mode", (StringValue) "QUEUE_MODE_PACKETS");
 

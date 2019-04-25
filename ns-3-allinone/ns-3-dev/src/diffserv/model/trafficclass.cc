@@ -109,13 +109,13 @@ TrafficClass::match (Ptr<Packet> p)
 	return false;
 }
 
-void TrafficClass::SetPriorityLevel(uint32_t l)
+void TrafficClass::SetPriorityLevel(int l)
 {
 	priority_level = l;
 }
 
 
-void TrafficClass::SetWeight(uint32_t w)
+void TrafficClass::SetWeight(int w)
 {
 	weight = w;
 }

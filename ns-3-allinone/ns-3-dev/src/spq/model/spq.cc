@@ -1,6 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
+#include <vector>
+#include <iostream>
+using namespace std;
+
 #include "spq.h"
+#include "ns3/filter.h"
+#include "ns3/trafficclass.h"
 
 namespace ns3 {
 
@@ -27,10 +33,36 @@ namespace ns3 {
 
   template <typename Item>
   SPQ<Item>::SPQ () {
+
+    cout << "Using SPQ" << endl;
+
     q_class.push_back(new TrafficClass());
     q_class.push_back(new TrafficClass());
+    
     q_class[LOW]->SetPriorityLevel(LOW);
     q_class[HIGH]->SetPriorityLevel(HIGH);
+
+    q_class[LOW]->SetMode(0);
+    q_class[HIGH]->SetMode(0);
+
+    q_class[LOW]->SetMaxPackets(500);
+    q_class[HIGH]->SetMaxPackets(500);
+
+    vector<FilterElements*> feLow;
+    feLow.push_back(new Destination_Port_Number(9));
+
+    vector<Filter*> fLow;
+    fLow.push_back(new Filter());
+    fLow[0]->set(feLow);
+    q_class[LOW]->SetFilters(fLow);
+
+    vector<FilterElements*> feHigh;
+    feHigh.push_back(new Destination_Port_Number(10));
+
+    vector<Filter*> fHigh;
+    fHigh.push_back(new Filter());
+    fHigh[0]->set(feHigh);
+    q_class[HIGH]->SetFilters(fHigh);
   }
 
   template <typename Item>

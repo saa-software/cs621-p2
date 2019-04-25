@@ -20,9 +20,10 @@ public:
 class Filter
 {
 public:
-  std::vector<FilterElements> elements;
+  std::vector<FilterElements*> elements;
 
   bool match (Ptr<Packet> p);
+  void set(std::vector<FilterElements*> e);
 };
 
 class Source_Ip_Address : public FilterElements
@@ -71,6 +72,7 @@ private:
   uint16_t value;
 
 public:
+  Destination_Port_Number (uint16_t port);
   bool match (Ptr<Packet> p);
   void set (uint16_t port);
 };

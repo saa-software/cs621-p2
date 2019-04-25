@@ -9,12 +9,17 @@
 
 namespace ns3 {
   
+void
+Filter::set(std::vector<FilterElements*> e) {
+  elements = e;
+} 
+
 bool
 Filter::match (Ptr<Packet> p)
 {
   for (size_t i = 0; i < elements.size (); i++)
     {
-      if (!elements[i].match (p))
+      if (!elements[i]->match (p))
         {
           return false;
         }
@@ -156,6 +161,11 @@ Destination_Port_Number::match (Ptr<Packet> p)
     {
       return false;
     }
+}
+
+Destination_Port_Number::Destination_Port_Number (u_int16_t port)
+{
+  value = port;
 }
 
 void

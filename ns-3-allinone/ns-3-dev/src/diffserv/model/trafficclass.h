@@ -27,7 +27,7 @@ public:
 	    QUEUE_MODE_BYTES,
 	  };
 
-	void SetMode (TrafficClass::QueueMode mode);
+	void SetMode (int mode);
 	/**
 	* A collection of filters for the class, any of which should match
 	*/
@@ -96,6 +96,9 @@ public:
 	 void SetPriorityLevel(int w);
 
 	 void SetWeight(int w);
+
+	 void SetMaxPackets(uint32_t p);
+	 void SetMaxBytes(uint32_t b);
 
 private:
 	/**

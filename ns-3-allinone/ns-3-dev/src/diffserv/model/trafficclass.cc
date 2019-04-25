@@ -35,8 +35,8 @@ TrafficClass::TrafficClass ()
 	NS_LOG_FUNCTION (this);
 	bytes = 0;
 	packets = 0;
-	maxPackets = 0;
-	maxBytes = 0;
+	maxPackets = 1000;
+	maxBytes = 50000;
 	weight = 0;
 	priority_level = 0;
 	isDefault = false;
@@ -49,9 +49,22 @@ TrafficClass::~TrafficClass ()
 }
 
 void 
-TrafficClass::SetMode (TrafficClass::QueueMode mode)
+TrafficClass::SetMode (int mode)
 {
-	m_mode = mode;
+	if (mode == 0)
+	{
+		m_mode = QUEUE_MODE_PACKETS;
+	} else {
+		m_mode = QUEUE_MODE_BYTES;
+	}
+}
+
+void TrafficClass::SetMaxPackets(uint32_t p) {
+	maxPackets = p;
+}
+
+void TrafficClass::SetMaxBytes(uint32_t b) {
+	maxBytes = b;
 }
 
 bool

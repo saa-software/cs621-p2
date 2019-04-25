@@ -31,7 +31,7 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("Cda");
+NS_LOG_COMPONENT_DEFINE ("SPQ");
 
 int
 main (int argc, char *argv[])
@@ -41,7 +41,7 @@ main (int argc, char *argv[])
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
   //
-  LogComponentEnable ("Cda", LOG_LEVEL_INFO);
+  LogComponentEnable ("SPQ", LOG_LEVEL_INFO);
   LogComponentEnable ("CdaServerApplication", LOG_LEVEL_ALL);
 
   CommandLine cmd;
@@ -104,8 +104,7 @@ main (int argc, char *argv[])
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
 
-  // p1p2.SetQueue("ns3::SPQ");
-  p1p2.SetQueue("ns3::SPQ", "Mode", (StringValue) "QUEUE_MODE_PACKETS");
+  p1p2.SetQueue("ns3::SPQ", "Mode", StringValue ("QUEUE_MODE_PACKETS"));
 
   NetDeviceContainer c0c1 = p0p1.Install (n0n1);
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);
@@ -128,8 +127,8 @@ main (int argc, char *argv[])
   Packet::EnablePrinting ();
   double start = 1.0;
   double stop = 300.0;
-  uint16_t port1 = 9; // well-known echo port number
-  uint16_t port2 = 10; // well-known echo port number
+  uint16_t port1 = 9;
+  uint16_t port2 = 10;
 
   CdaServerHelper server1 (port1);
   CdaServerHelper server2 (port2);
@@ -147,12 +146,12 @@ main (int argc, char *argv[])
   // node two.
   //
   uint32_t packetSize1 = 1000;
-  uint32_t maxPacketCount1 = 10000;
-  Time interPacketInterval1 = MicroSeconds (1);
+  uint32_t maxPacketCount1 = 5000;
+  Time interPacketInterval1 = MicroSeconds (0);
 
   uint32_t packetSize2 = 1000;
-  uint32_t maxPacketCount2 = 10000;
-  Time interPacketInterval2 = MicroSeconds (1);
+  uint32_t maxPacketCount2 = 5000;
+  Time interPacketInterval2 = MicroSeconds (0);
 
   CdaClientHelper client1 (i1i2.GetAddress (1), port1);
   client1.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount1));

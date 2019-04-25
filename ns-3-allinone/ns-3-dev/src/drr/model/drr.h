@@ -30,7 +30,7 @@ public:
 
 private:
   bool DoEnqueue(Ptr<Item> p);
-  // Ptr<Item> DoDequeue (void);
+  Ptr<Item> DoDequeue (void);
   // Ptr<const Item> DoPeek (void) const;
   // Ptr<Item> DoRemove (void);
 

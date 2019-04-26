@@ -43,6 +43,10 @@ main (int argc, char *argv[])
   //
   LogComponentEnable ("SPQ", LOG_LEVEL_INFO);
   LogComponentEnable ("CdaServerApplication", LOG_LEVEL_ALL);
+  LogComponentEnable ("SPQ", LOG_LEVEL_ALL);
+  LogComponentEnable ("TrafficClass", LOG_LEVEL_ALL);
+  LogComponentEnable ("DropTailQueue", LOG_LEVEL_ALL);
+  LogComponentEnable ("Filter", LOG_LEVEL_ALL);
 
   CommandLine cmd;
 
@@ -100,13 +104,12 @@ main (int argc, char *argv[])
   PointToPointHelper p0p1;
   p0p1.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
 
+  NetDeviceContainer c0c1 = p0p1.Install (n0n1);
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-
   p1p2.SetQueue("ns3::SPQ", "Mode", StringValue ("QUEUE_MODE_PACKETS"));
 
-  NetDeviceContainer c0c1 = p0p1.Install (n0n1);
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);
 
   InternetStackHelper stack;
@@ -146,11 +149,11 @@ main (int argc, char *argv[])
   // node two.
   //
   uint32_t packetSize1 = 1000;
-  uint32_t maxPacketCount1 = 5000;
+  uint32_t maxPacketCount1 = 2;
   Time interPacketInterval1 = MicroSeconds (0);
 
   uint32_t packetSize2 = 1000;
-  uint32_t maxPacketCount2 = 5000;
+  uint32_t maxPacketCount2 = 2;
   Time interPacketInterval2 = MicroSeconds (0);
 
   CdaClientHelper client1 (i1i2.GetAddress (1), port1);

@@ -40,7 +40,6 @@ TrafficClass::TrafficClass ()
 	weight = 0;
 	priority_level = 0;
 	isDefault = false;
-	filters = {};
 }
 	
 TrafficClass::~TrafficClass ()
@@ -51,6 +50,7 @@ TrafficClass::~TrafficClass ()
 void 
 TrafficClass::SetMode (int mode)
 {
+	NS_LOG_FUNCTION (this);
 	if (mode == 0)
 	{
 		m_mode = QUEUE_MODE_PACKETS;
@@ -60,16 +60,19 @@ TrafficClass::SetMode (int mode)
 }
 
 void TrafficClass::SetMaxPackets(uint32_t p) {
+	NS_LOG_FUNCTION (this);
 	maxPackets = p;
 }
 
 void TrafficClass::SetMaxBytes(uint32_t b) {
+	NS_LOG_FUNCTION (this);
 	maxBytes = b;
 }
 
 bool
 TrafficClass::Enqueue (Ptr<Packet> p)
 {
+	NS_LOG_FUNCTION (this);
 	switch (m_mode) {
 		case QUEUE_MODE_BYTES:
 			if (bytes + p->GetSize () <= maxBytes) {
@@ -97,6 +100,7 @@ TrafficClass::Enqueue (Ptr<Packet> p)
 Ptr<Packet>
 TrafficClass::Dequeue ()
 {
+	NS_LOG_FUNCTION (this);
 	Ptr<Packet> p = m_queue.front();
 	m_queue.pop();
 	switch (m_mode) {
@@ -113,9 +117,13 @@ TrafficClass::Dequeue ()
 bool
 TrafficClass::match (Ptr<Packet> p)
 {
+	NS_LOG_FUNCTION (this);
 	for (unsigned int i = 0; i < filters.size(); i++)
 	{
-		if ((*filters.at(i)).match(p)) {
+		NS_LOG_FUNCTION (i);
+		Filter* f = filters.at(i);
+		NS_LOG_FUNCTION (f);
+		if (f->match(p)) {
 			return true;
 		}
 	}
@@ -124,12 +132,14 @@ TrafficClass::match (Ptr<Packet> p)
 
 void TrafficClass::SetPriorityLevel(int l)
 {
+	NS_LOG_FUNCTION (this);
 	priority_level = l;
 }
 
 
 void TrafficClass::SetWeight(int w)
 {
+	NS_LOG_FUNCTION (this);
 	weight = w;
 }
 
@@ -137,12 +147,14 @@ void TrafficClass::SetWeight(int w)
 void
 TrafficClass::SetFilters(vector<Filter*> f)
 {
+	NS_LOG_FUNCTION (this);
 	filters = f;
 }
 
 bool
 TrafficClass::isEmpty() 
 {
+	NS_LOG_FUNCTION (this);
 	switch (m_mode){
 		case QUEUE_MODE_BYTES:
 			return bytes == 0;

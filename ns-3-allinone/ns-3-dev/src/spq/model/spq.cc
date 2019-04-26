@@ -10,31 +10,33 @@ using namespace std;
 
 namespace ns3 {
 
-/* ... */
+  NS_OBJECT_ENSURE_REGISTERED (SPQ);
+
+  // NS_LOG_COMPONENT_DEFINE ("SPQ");
+/* ... */ 
   const int LOW = 0;
   const int HIGH = 1;
 
-  template <typename Item>
   TypeId
-  SPQ<Item>::GetTypeId (void) {
-    static TypeId tid = TypeId (("ns3::SPQ<" + GetTypeParamName<SPQ<Item> > () + ">").c_str ())
-      .SetParent<DiffServ<Item> >()
+  SPQ::GetTypeId (void) {
+    static TypeId tid = TypeId ("ns3::SPQ<Packet>")
+      .SetParent<DiffServ<Packet>> ()
       .SetGroupName("Network")
-      .template AddConstructor<SPQ<Item>> ()
+      .template AddConstructor<SPQ> ()
       .AddAttribute("Mode",
                     "Whether to use bytes (see MaxBytes) or packets (see MaxPackets) as the maximum queue size metric.",
                     EnumValue(QUEUE_MODE_PACKETS),
-                    MakeEnumAccessor(&SPQ<Item>::SetMode,&SPQ<Item>::GetMode),
+                    MakeEnumAccessor(&SPQ::SetMode,&SPQ::GetMode),
                     MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
 
     ;
     return tid;
   }
 
-  template <typename Item>
-  SPQ<Item>::SPQ () {
+  // template <typename Item>
+  SPQ::SPQ (): DiffServ (),NS_LOG_TEMPLATE_DEFINE ("SPQ") {
 
-    cout << "Using SPQ" << endl;
+    NS_LOG_FUNCTION (this);
 
     q_class.push_back(new TrafficClass());
     q_class.push_back(new TrafficClass());
@@ -65,16 +67,17 @@ namespace ns3 {
     q_class[HIGH]->SetFilters(fHigh);
   }
 
-  template <typename Item>
-  SPQ<Item>::~SPQ () {
+  // template <typename Item>
+  SPQ::~SPQ () {
 
   }
 
-  template <typename Item>
-  Ptr<Item>
-  SPQ<Item>::Schedule (void) {
+  // template <typename Item>
+  Ptr<Packet>
+  SPQ::Schedule (void) {
+    NS_LOG_FUNCTION (this);
     //check for the high priority queue TC
-    Ptr<Item> p;
+    Ptr<Packet> p;
     //Dequeue high if not empty
     if(!q_class[HIGH]->isEmpty()) {
       p = q_class[HIGH]->Dequeue();
@@ -91,9 +94,10 @@ namespace ns3 {
 
   }
 
-  template <typename Item>
+  // template <typename Item>
   uint32_t
-  SPQ<Item>::Classify (Ptr<Item> p) {
+  SPQ::Classify (Ptr<Packet> p) {
+    NS_LOG_FUNCTION (this);
     if(q_class[HIGH]->match(p)) {
       return 1;
     } else {
@@ -101,11 +105,12 @@ namespace ns3 {
     }
   }
 
-  template <typename Item>
+  // template <typename Item>
   bool
-  SPQ<Item>::DoEnqueue(Ptr<Item> p) {
+  SPQ::Enqueue(Ptr<Packet> p) {
+    NS_LOG_FUNCTION (this);
     //call Classify
-    bool res;
+    bool res = false;
     uint32_t priorityLevel = Classify(p);
     if(priorityLevel == 1) {
       res = q_class[HIGH]->Enqueue(p);
@@ -115,11 +120,12 @@ namespace ns3 {
     return res;
   }
 
-  template <typename Item>
-  Ptr<Item>
-  SPQ<Item>::DoDequeue (void) {
+  // template <typename Item>
+  Ptr<Packet>
+  SPQ::Dequeue (void) {
+    NS_LOG_FUNCTION (this);
     //call Schedule
-    Ptr<Item> p = Schedule();
+    Ptr<Packet> p = Schedule();
     return p;
   }
 
@@ -127,10 +133,11 @@ namespace ns3 {
 * Peek the front item in the queue without removing it.
   Retun 0 if queue(s) is(are) empty.
 */
-  template <typename Item>
-  Ptr<const Item>
-  SPQ<Item>::DoPeek (void) const {
-    Ptr<Item> p;
+  // template <typename Item>
+  Ptr<const Packet>
+  SPQ::Peek (void) const {
+    NS_LOG_FUNCTION (this);
+    Ptr<Packet> p;
 
     if(!q_class[HIGH]->isEmpty()) {
      p = q_class[HIGH]->m_queue.front();
@@ -150,10 +157,11 @@ namespace ns3 {
   /**
    Pull the item to drop from the queue
   */
-  template <typename Item>
-  Ptr<Item>
-  SPQ<Item>::DoRemove (void) {
-    Ptr<Item> p;
+  // template <typename Item>
+  Ptr<Packet>
+  SPQ::Remove (void) {
+    NS_LOG_FUNCTION (this);
+    Ptr<Packet> p;
     //Dequeue high if not empty
     if(!q_class[HIGH]->isEmpty()) {
       p = q_class[HIGH]->Dequeue();
@@ -171,18 +179,18 @@ namespace ns3 {
   }
 
 
-  template <typename Item>
+  // template <typename Item>
   void
-  SPQ<Item>::SetMode (SPQ<Item>::QueueMode mode) {
+  SPQ::SetMode (SPQ::QueueMode mode) {
     m_mode = mode;
   }
 
-  template <typename Item>
-  typename SPQ<Item>::QueueMode
-  SPQ<Item>::GetMode (void) const {
+  //template <typename Item>
+  typename SPQ::QueueMode
+  SPQ::GetMode (void) const {
     return m_mode;
   }
 
-  NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,Packet);
+  // NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,Packet);
   // NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,QueueDiscItem);
 }

@@ -13,7 +13,7 @@ namespace ns3 {
 /* ... */
 // template <typename Item>
 
-class SPQ : public DiffServ<Packet> {
+class SPQ : public DiffServ<ns3::Packet> {
 public:
   static TypeId GetTypeId (void);
 

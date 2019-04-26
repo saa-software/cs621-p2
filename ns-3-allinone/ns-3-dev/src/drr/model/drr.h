@@ -11,8 +11,8 @@
 namespace ns3 {
 
 
-template <typename Item>
-class DRR: public DiffServ<Item> {
+//template <typename Item>
+class DRR: public DiffServ<Packet> {
 public:
   static TypeId GetTypeId (void);
   DRR();
@@ -23,16 +23,16 @@ public:
     QUEUE_MODE_BYTES,
   };
 
-  Ptr<Item> Schedule (void);
-  uint32_t Classify (Ptr<Item> p);
-  void SetMode (DRR<Item>::QueueMode mode);
-  DRR<Item>::QueueMode GetMode (void) const;
+  Ptr<Packet> Schedule (void);
+  uint32_t Classify (Ptr<Packet> p);
+  void SetMode (DRR::QueueMode mode);
+  DRR::QueueMode GetMode (void) const;
 
 private:
-  bool DoEnqueue(Ptr<Item> p);
-  Ptr<Item> DoDequeue (void);
-  // Ptr<const Item> DoPeek (void) const;
-  // Ptr<Item> DoRemove (void);
+  virtual bool Enqueue(Ptr<Packet> p);
+  virtual Ptr<Packet> Dequeue (void);
+  virtual Ptr<const Packet> Peek (void) const;
+  virtual Ptr<Packet> Remove (void);
 
   std::vector<TrafficClass*> q_class;
   QueueMode m_mode;
@@ -40,6 +40,7 @@ private:
   bool isNewRound;
   std::vector<uint32_t> dc_arr;
 
+  NS_LOG_TEMPLATE_DECLARE;
 };
 
 }

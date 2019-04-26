@@ -175,6 +175,7 @@ namespace ns3 {
         return 0;
       }
     }
+    DropAfterDequeue(p);
     return p;
   }
 

@@ -81,6 +81,10 @@ main (int argc, char *argv[])
   }
   // End json parsing
 
+  for (i = 0; i < numQueues; i++) {
+    printf("%d ", queueLevels[i]);
+  }
+
   // Explicitly create the nodes required by the topology.
   NodeContainer n;
   n.Create (3);

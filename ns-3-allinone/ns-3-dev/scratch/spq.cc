@@ -146,11 +146,11 @@ main (int argc, char *argv[])
   // node two.
   //
   uint32_t packetSize1 = 1000;
-  uint32_t maxPacketCount1 = 5000;
+  uint32_t maxPacketCount1 = 10;
   Time interPacketInterval1 = MicroSeconds (0);
 
   uint32_t packetSize2 = 1000;
-  uint32_t maxPacketCount2 = 5000;
+  uint32_t maxPacketCount2 = 10;
   Time interPacketInterval2 = MicroSeconds (0);
 
   CdaClientHelper client1 (i1i2.GetAddress (1), port1);

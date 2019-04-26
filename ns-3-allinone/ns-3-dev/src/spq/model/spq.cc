@@ -73,6 +73,7 @@ namespace ns3 {
   template <typename Item>
   Ptr<Item>
   SPQ<Item>::Schedule (void) {
+    printf("Schedule\n");
     //check for the high priority queue TC
     Ptr<Item> p;
     //Dequeue high if not empty
@@ -94,16 +95,19 @@ namespace ns3 {
   template <typename Item>
   uint32_t
   SPQ<Item>::Classify (Ptr<Item> p) {
-    if(q_class[HIGH]->match(p)) {
-      return 1;
-    } else {
-      return 0;
-    }
+    printf("Classify\n");
+    // if(q_class[HIGH]->match(p)) {
+    //   return 1;
+    // } else {
+    //   return 0;
+    // }
+    return 1;
   }
 
   template <typename Item>
   bool
-  SPQ<Item>::DoEnqueue(Ptr<Item> p) {
+  SPQ<Item>::Enqueue(Ptr<Item> p) {
+    printf("Enqeue\n");
     //call Classify
     bool res;
     uint32_t priorityLevel = Classify(p);
@@ -117,7 +121,8 @@ namespace ns3 {
 
   template <typename Item>
   Ptr<Item>
-  SPQ<Item>::DoDequeue (void) {
+  SPQ<Item>::Dequeue (void) {
+    printf("Dequeue\n");
     //call Schedule
     Ptr<Item> p = Schedule();
     return p;
@@ -129,7 +134,7 @@ namespace ns3 {
 */
   template <typename Item>
   Ptr<const Item>
-  SPQ<Item>::DoPeek (void) const {
+  SPQ<Item>::Peek (void) const {
     Ptr<Item> p;
 
     if(!q_class[HIGH]->isEmpty()) {
@@ -152,7 +157,7 @@ namespace ns3 {
   */
   template <typename Item>
   Ptr<Item>
-  SPQ<Item>::DoRemove (void) {
+  SPQ<Item>::Remove (void) {
     Ptr<Item> p;
     //Dequeue high if not empty
     if(!q_class[HIGH]->isEmpty()) {

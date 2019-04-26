@@ -31,10 +31,10 @@ public:
   SPQ<Item>::QueueMode GetMode (void) const;
 
 private:
-   bool DoEnqueue(Ptr<Item> p);
-   Ptr<Item> DoDequeue (void);
-   Ptr<const Item> DoPeek (void) const;
-   Ptr<Item> DoRemove (void);
+   bool Enqueue(Ptr<Item> p);
+   Ptr<Item> Dequeue (void);
+   Ptr<const Item> Peek (void) const;
+   Ptr<Item> Remove (void);
   std::vector<TrafficClass*> q_class;
 
   QueueMode m_mode;

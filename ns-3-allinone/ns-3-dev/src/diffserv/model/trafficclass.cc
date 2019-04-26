@@ -79,6 +79,9 @@ TrafficClass::Enqueue (Ptr<Packet> p)
 				//enqueue
 				m_queue.push(p);
 				bytes += p->GetSize ();
+
+				NS_LOG_FUNCTION (bytes);
+
 				return true;
 			} else {
 				return false;
@@ -88,6 +91,8 @@ TrafficClass::Enqueue (Ptr<Packet> p)
 			if (packets + 1 <= maxPackets) {
 				m_queue.push(p);
 				packets++;
+
+				NS_LOG_FUNCTION (packets);
 				return true;
 			} else {
 				return false;
@@ -106,9 +111,11 @@ TrafficClass::Dequeue ()
 	switch (m_mode) {
 		case QUEUE_MODE_BYTES:
 			bytes -= p->GetSize ();
+			NS_LOG_FUNCTION (bytes);
 			break;
 		case QUEUE_MODE_PACKETS:
 			packets--;
+			NS_LOG_FUNCTION (packets);
 			break;
 	}
 	return p;

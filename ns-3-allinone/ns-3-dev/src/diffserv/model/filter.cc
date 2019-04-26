@@ -6,6 +6,7 @@
 #include "ns3/ptr.h"
 #include "ns3/ipv4-header.h"
 #include "ns3/udp-header.h"
+#include "ns3/tcp-header.h"
 #include "ns3/inet-socket-address.h"
 #include "filter.h"
 
@@ -158,20 +159,35 @@ bool
 Destination_Port_Number::match (Ptr<Packet> p)
 {
   NS_LOG_FUNCTION (this);
+  NS_LOG_FUNCTION ("Destination_Port_Number");
+
+  NS_LOG_FUNCTION (p);
   Ptr<Packet> copy = p->Copy ();
+  // TcpHeader th;
+  Ipv4Header iph;
   UdpHeader uh;
+  copy->RemoveAtStart(2);
+  copy->RemoveHeader (iph);
   copy->RemoveHeader (uh);
+  // copy->PeekHeader (th);
+
+  NS_LOG_FUNCTION (iph);
+  // NS_LOG_FUNCTION (th);
   NS_LOG_FUNCTION (uh);
 
   uint16_t port = uh.GetDestinationPort();
 
   NS_LOG_FUNCTION (port);
+  NS_LOG_FUNCTION (value);
+
   if (value == port)
     {
+      NS_LOG_FUNCTION ("match true");
       return true;
     }
   else
     {
+      NS_LOG_FUNCTION ("match false");
       return false;
     }
 }

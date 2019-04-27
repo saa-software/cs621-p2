@@ -7,6 +7,8 @@ using namespace std;
 #include "spq.h"
 #include "ns3/filter.h"
 #include "ns3/trafficclass.h"
+#include "ns3/integer.h"
+#include "ns3/object-vector.h"
 
 namespace ns3 {
 
@@ -28,10 +30,33 @@ namespace ns3 {
                     EnumValue(QUEUE_MODE_PACKETS),
                     MakeEnumAccessor(&SPQ::SetMode,&SPQ::GetMode),
                     MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
-
+      .AddAttribute("NumberOfQueues",
+                    "How many queues to use with SPQ.", 
+                    IntegerValue (0),
+                    MakeIntegerAccessor (&SPQ::SetNumberOfQueues),
+                    MakeIntegerChecker<int> (INTMAX_MIN, INTMAX_MAX))
+      // .AddAttribute("QueueLevels",
+      //               "This vector specified the level of each queue.",
+      //               ObjectVectorValue (),
+      //               MakeObjectVectorAccessor (&SPQ::SetQueueLevels),
+      //               MakeObjectVectorChecker<IntegerValue> ())
     ;
     return tid;
   }
+
+  void
+  SPQ::SetNumberOfQueues (int numberOfQueues)
+  {
+    NS_LOG_FUNCTION (this << numberOfQueues);
+    m_numberOfQueues = numberOfQueues;
+  }
+
+  // void
+  // SPQ::SetQueueLevels(vector<IntegerValue> queueLevels)
+  // {
+  //   NS_LOG_FUNCTION (this << queueLevels);
+  //   m_queueLevels = queueLevels;
+  // }
 
   // template <typename Item>
   SPQ::SPQ (): DiffServ (),NS_LOG_TEMPLATE_DEFINE ("SPQ") {
@@ -191,6 +216,16 @@ namespace ns3 {
   SPQ::GetMode (void) const {
     return m_mode;
   }
+
+  void
+  SPQConfig::SetNumberOfQueues (int numQs) {
+    m_numberOfQueues = numQs;
+  }
+
+  // void
+  // SPQConfig::SetNumberOfQueues (int numQs) {
+  //   m_numberOfQueues = numQs;
+  // }
 
   // NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,Packet);
   // NS_OBJECT_TEMPLATE_CLASS_DEFINE (SPQ,QueueDiscItem);

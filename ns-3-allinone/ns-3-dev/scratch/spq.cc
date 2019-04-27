@@ -28,6 +28,7 @@
 #include "ns3/ipv4-global-routing-helper.h"
 #include "src/json/json.h"
 #include "ns3/spq.h"
+#include "ns3/vector.h"
 
 using namespace ns3;
 
@@ -69,21 +70,26 @@ main (int argc, char *argv[])
   const Json::Value outputNumQueues = root["numerOfQueues"];
   std::string numQueuesStr = Json::writeString (wbuilder, outputNumQueues);
   int numQueues = stoi (numQueuesStr);
+  Ptr<SPQConfig> config = CreateObject<SPQConfig> ();
+  config->SetNumberOfQueues (numQueues);
+  // SPQConfig spqConfig (numQueues);
   // Get level for each queue
-  int queueLevels[numQueues];
+  std:: vector<int> queueLevels;
   int i;
   for (i = 0; i < numQueues; i++) {
       std::string q = "q" + to_string(i);
       const Json::Value outputQ0 = root[q];
       std::string q0Str = Json::writeString (wbuilder, outputQ0);
       int qVal = stoi (q0Str);
-      queueLevels[i] = qVal;
+      queueLevels.push_back(qVal);
   }
   // End json parsing
 
+  std::cout << "queuelevels " << queueLevels[1] << std::endl;
   for (i = 0; i < numQueues; i++) {
     printf("%d ", queueLevels[i]);
   }
+  printf("\n");
 
   // Explicitly create the nodes required by the topology.
   NodeContainer n;
@@ -99,7 +105,15 @@ main (int argc, char *argv[])
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-  p1p2.SetQueue("ns3::SPQ", "Mode", StringValue ("QUEUE_MODE_PACKETS"));
+  // p1p2.SetQueue("ns3::SPQ",
+                // "Mode", StringValue ("QUEUE_MODE_PACKETS"));
+  p1p2.SetQueue("ns3::SPQ",
+                "Mode", StringValue ("QUEUE_MODE_PACKETS"),
+                "SPQConfig", PointerValue (config));
+  // p1p2.SetQueue("ns3::SPQ",
+  //               "Mode", StringValue ("QUEUE_MODE_PACKETS"),
+  //               "NumberOfQueues", IntegerValue (numQueues),
+  //               "QueueLevels", VectorValue (&queueLevels));
 
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);
 

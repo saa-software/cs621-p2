@@ -19,8 +19,8 @@ Once properly installed, follow these steps to run the program.
 - Configure the waf `$ ./waf configure`
 - Build the executable `$ ./waf build`
 - From here there are 2 option, run and SQP or DDR simulation
-    - SQP `./waf --run spq`
-    - DDR `./waf --run ddr`
+    - SQP `./waf --run "spq --spq.json"`
+    - DDR `./waf --run "ddr --drr.json"`
 
 ## Additional Options when Running
 Additionally, there is a configuration file for both the SPQ and DDR simulations.

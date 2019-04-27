@@ -36,17 +36,17 @@ NS_LOG_COMPONENT_DEFINE ("SPQ");
 int
 main (int argc, char *argv[])
 {
-  // Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("6000p"));
+  // Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("500p"));
   //
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
   //
-  LogComponentEnable ("SPQ", LOG_LEVEL_INFO);
-  LogComponentEnable ("CdaServerApplication", LOG_LEVEL_ALL);
-  LogComponentEnable ("SPQ", LOG_LEVEL_ALL);
-  LogComponentEnable ("TrafficClass", LOG_LEVEL_ALL);
-  LogComponentEnable ("DropTailQueue", LOG_LEVEL_ALL);
-  LogComponentEnable ("Filter", LOG_LEVEL_ALL);
+  // LogComponentEnable ("SPQ", LOG_LEVEL_INFO);
+  // LogComponentEnable ("CdaServerApplication", LOG_LEVEL_ALL);
+  // LogComponentEnable ("SPQ", LOG_LEVEL_ALL);
+  // LogComponentEnable ("TrafficClass", LOG_LEVEL_ALL);
+  // LogComponentEnable ("DropTailQueue", LOG_LEVEL_ALL);
+  // LogComponentEnable ("Filter", LOG_LEVEL_ALL);
 
   CommandLine cmd;
 
@@ -149,12 +149,12 @@ main (int argc, char *argv[])
   // node two.
   //
   uint32_t packetSize1 = 1000;
-  uint32_t maxPacketCount1 = 2;
-  Time interPacketInterval1 = MicroSeconds (0);
+  uint32_t maxPacketCount1 = 9000;
+  Time interPacketInterval1 = MicroSeconds (1000);
 
   uint32_t packetSize2 = 1000;
-  uint32_t maxPacketCount2 = 2;
-  Time interPacketInterval2 = MicroSeconds (0);
+  uint32_t maxPacketCount2 = 110000;
+  Time interPacketInterval2 = MicroSeconds (30);
 
   CdaClientHelper client1 (i1i2.GetAddress (1), port1);
   client1.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount1));
@@ -172,7 +172,7 @@ main (int argc, char *argv[])
   client2.SetAttribute ("PacketSize", UintegerValue (packetSize2));
 
   apps = client2.Install (n.Get (0));
-  apps.Start (Seconds (start + 2));
+  apps.Start (Seconds (start + 2.5));
   apps.Stop (Seconds (stop));
 
 

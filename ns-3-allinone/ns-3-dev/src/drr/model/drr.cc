@@ -3,6 +3,7 @@
 #include "drr.h"
 #include "ns3/filter.h"
 #include "ns3/trafficclass.h"
+#include "ns3/log.h"
 
 namespace ns3 {
 
@@ -12,7 +13,7 @@ namespace ns3 {
   const int MED = 1;
   const int HIGH = 2;
   //TODO: create a getter/setter?
-  const uint32_t QUANTUM = 100;
+  const uint32_t QUANTUM = 1000;
 
 // template <typename Item>
 DRR::DRR() :DiffServ(),NS_LOG_TEMPLATE_DEFINE ("DRR") {
@@ -28,10 +29,36 @@ DRR::DRR() :DiffServ(),NS_LOG_TEMPLATE_DEFINE ("DRR") {
   q_class[HIGH]->SetWeight(HIGH);
 
   q_class[LOW]->SetMode(0);
+  q_class[MED]->SetMode(0);
   q_class[HIGH]->SetMode(0);
 
   q_class[LOW]->SetMaxPackets(500);
+  q_class[MED]->SetMaxPackets(500);
   q_class[HIGH]->SetMaxPackets(500);
+
+  vector<FilterElements*> feLow;
+  feLow.push_back(new Destination_Port_Number(9));
+
+  vector<Filter*> fLow;
+  fLow.push_back(new Filter());
+  fLow[0]->set(feLow);
+  q_class[LOW]->SetFilters(fLow);
+
+  vector<FilterElements*> feMed;
+  feMed.push_back(new Destination_Port_Number(10));
+
+  vector<Filter*> fMed;
+  fMed.push_back(new Filter());
+  fMed[0]->set(feMed);
+  q_class[MED]->SetFilters(fMed);
+
+  vector<FilterElements*> feHigh;
+  feHigh.push_back(new Destination_Port_Number(11));
+
+  vector<Filter*> fHigh;
+  fHigh.push_back(new Filter());
+  fHigh[0]->set(feHigh);
+  q_class[HIGH]->SetFilters(fHigh);
 
   q_kind = HIGH; //Start with high
   isNewRound = true;
@@ -80,76 +107,89 @@ Ptr<Packet>
 DRR::Schedule (void) {
   NS_LOG_FUNCTION (this);
 
+  NS_LOG_INFO("q_kind: " << q_kind);
+
   //if all queues are empty, return 0
   if (q_class[HIGH]->isEmpty() && q_class[MED]->isEmpty() && q_class[LOW]->isEmpty()) {
     return 0;
   }
 
-  switch (this->q_kind)
-  {
-    case HIGH: //HIGH
-            if(isNewRound) { //if scheduling for the first time, inc dc
-              dc_arr[HIGH] += QUANTUM*(HIGH+1);
-              isNewRound = false;
-            }
-            if(!q_class[HIGH]->isEmpty()) {
-              Ptr<Packet> p = q_class[HIGH]->m_queue.front();
-              if(p->GetSize() <= dc_arr[HIGH]) {
-                Ptr<Packet> res = q_class[HIGH]->Dequeue();
-                dc_arr[HIGH] -= res->GetSize();
-                return res;
-              } else { //not enough dc, move to MED
+  while(true){
+    switch (this->q_kind)
+    {
+      case HIGH: //HIGH
+      NS_LOG_INFO("HIGH: isNewRound : " << isNewRound);
+              if(!q_class[HIGH]->isEmpty()) {
+                if(isNewRound) { //if scheduling for the first time, inc dc
+                  dc_arr[HIGH] += QUANTUM*(HIGH+1);
+                  isNewRound = false;
+                }
+                NS_LOG_INFO("High Deficit Counter: " << dc_arr[HIGH]);
+                Ptr<Packet> p = q_class[HIGH]->m_queue.front();
+                if(p->GetSize() <= dc_arr[HIGH]) {
+                  Ptr<Packet> res = q_class[HIGH]->Dequeue();
+                  dc_arr[HIGH] -= res->GetSize();
+                  NS_LOG_INFO("Dequeue High");
+                  return res;
+                } else { //not enough dc, move to MED
+                  q_kind = MED;
+                  isNewRound = true;
+                }
+              } else { //if queue is empty
                 q_kind = MED;
                 isNewRound = true;
               }
-            } else { //if queue is empty
-              q_kind = MED;
-              isNewRound = true;
-            }
-            break;
-    case MED:
-            if(isNewRound) { //if scheduling for the first time, inc dc
-              dc_arr[MED] += QUANTUM*(MED+1);
-              isNewRound = false;
-            }
-            if(!q_class[MED]->isEmpty()) {
-              Ptr<Packet> p = q_class[MED]->m_queue.front();
-              if(p->GetSize() <= dc_arr[MED]) {
-                Ptr<Packet> res = q_class[MED]->Dequeue();
-                dc_arr[MED] -= res->GetSize();
-                return res;
-              } else {
+              break;
+      case MED:
+        NS_LOG_INFO("MED: isNewRound : " << isNewRound);
+              if(!q_class[MED]->isEmpty()) {
+                if(isNewRound) { //if scheduling for the first time, inc dc
+                  dc_arr[MED] += QUANTUM*(MED+1);
+                  isNewRound = false;
+                }
+                NS_LOG_INFO("Med Deficit Counter: " << dc_arr[MED]);
+                Ptr<Packet> p = q_class[MED]->m_queue.front();
+                if(p->GetSize() <= dc_arr[MED]) {
+                  Ptr<Packet> res = q_class[MED]->Dequeue();
+                  dc_arr[MED] -= res->GetSize();
+                  NS_LOG_INFO("Dequeue Med");
+                  return res;
+                } else {
+                  q_kind = LOW;
+                  isNewRound = true;
+                }
+              } else { //if queue is empty
                 q_kind = LOW;
                 isNewRound = true;
               }
-            } else { //if queue is empty
-              q_kind = LOW;
-              isNewRound = true;
-            }
-            break;
-    case LOW:
-            if(isNewRound) { //if scheduling for the first time, inc dc
-              dc_arr[LOW] += QUANTUM*(LOW+1);
-              isNewRound = false;
-            }
-            if(!q_class[LOW]->isEmpty()) {
-              Ptr<Packet> p = q_class[LOW]->m_queue.front();
-              if(p->GetSize() <= dc_arr[LOW]) {
-                Ptr<Packet> res = q_class[LOW]->Dequeue();
-                dc_arr[LOW] -= res->GetSize();
-                return res;
-              } else {
+              break;
+      case LOW:
+          NS_LOG_INFO("LOW: isNewRound : "<< isNewRound);
+              if(!q_class[LOW]->isEmpty()) {
+                if(isNewRound) { //if scheduling for the first time, inc dc
+                  dc_arr[LOW] += QUANTUM*(LOW+1);
+                  isNewRound = false;
+                }
+                NS_LOG_INFO("Low Deficit Counter: " << dc_arr[LOW]);
+                Ptr<Packet> p = q_class[LOW]->m_queue.front();
+                if(p->GetSize() <= dc_arr[LOW]) {
+                  Ptr<Packet> res = q_class[LOW]->Dequeue();
+                  dc_arr[LOW] -= res->GetSize();
+                  NS_LOG_INFO("Dequeue LOW");
+                  return res;
+                } else {
+                  q_kind = HIGH;
+                  isNewRound = true;
+                }
+              } else { //if queue is empty
                 q_kind = HIGH;
                 isNewRound = true;
               }
-            } else { //if queue is empty
-              q_kind = HIGH;
-              isNewRound = true;
-            }
-            break;
-      default:
-        return 0;
-      }
+              break;
+        default:
+          return 0;
+        }
+  }
       return 0;
 }
 
@@ -169,13 +209,17 @@ DRR::Classify (Ptr<Packet> p) {
 // template <typename Item>
 bool
 DRR::Enqueue(Ptr<Packet> p) {
-  NS_LOG_FUNCTION (this);
+  NS_LOG_FUNCTION (this << p);
   uint32_t weight = Classify(p);
+  NS_LOG_INFO("weight: " << weight);
   if(weight == 2) {
+    NS_LOG_INFO("Enqueue HIGH");
     return q_class[HIGH]->Enqueue(p);
   } else if (weight == 1) {
+    NS_LOG_INFO("Enqueue MED");
     return q_class[MED]->Enqueue(p);
   } else {
+    NS_LOG_INFO("Enqueue LOW");
     return q_class[LOW]->Enqueue(p);
   }
 }

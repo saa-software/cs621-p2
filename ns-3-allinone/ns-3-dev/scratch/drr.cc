@@ -27,11 +27,11 @@
 #include "ns3/flow-monitor-helper.h"
 #include "ns3/ipv4-global-routing-helper.h"
 #include "src/json/json.h"
-#include "ns3/spq.h"
+#include "ns3/drr.h"
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("Cda");
+NS_LOG_COMPONENT_DEFINE ("DRR");
 
 int
 main (int argc, char *argv[])
@@ -41,14 +41,18 @@ main (int argc, char *argv[])
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
   //
-  LogComponentEnable ("Cda", LOG_LEVEL_INFO);
-  LogComponentEnable ("CdaServerApplication", LOG_LEVEL_ALL);
+  // LogComponentEnable ("Cda", LOG_LEVEL_INFO);
+  // LogComponentEnable ("CdaServerApplication", LOG_LEVEL_ALL);
+  // LogComponentEnable ("DRR", LOG_LEVEL_INFO);
+  // LogComponentEnable ("TrafficClass", LOG_LEVEL_ALL);
+  // LogComponentEnable ("DropTailQueue", LOG_LEVEL_ALL);
+  // LogComponentEnable ("Filter", LOG_LEVEL_ALL);
 
   CommandLine cmd;
 
   std::string inputFile = "";
 
-  cmd.AddValue ("i", "inputFile for SPQ Application", inputFile);
+  cmd.AddValue ("i", "inputFile for DRR Application", inputFile);
   cmd.Parse (argc, argv);
 
   std::cout << "inputFile: " << inputFile << std::endl;
@@ -86,7 +90,7 @@ main (int argc, char *argv[])
   // std::string compressionProtocol = Json::writeString (wbuilder, outputCompressionProtocol);
   // std::cout << "COMPRESSION PROTO: " << compressionProtocol << std::endl;
   // int proto = stoi (compressionProtocol);
-  
+
   // End json parsing
 
   // Explicitly create the nodes required by the topology.
@@ -100,12 +104,12 @@ main (int argc, char *argv[])
   PointToPointHelper p0p1;
   p0p1.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
 
+  NetDeviceContainer c0c1 = p0p1.Install (n0n1);
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-  p1p2.SetQueue("ns3::SPQ");
+  p1p2.SetQueue("ns3::DRR", "Mode", StringValue("QUEUE_MODE_PACKETS"));
 
-  NetDeviceContainer c0c1 = p0p1.Install (n0n1);
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);
 
   InternetStackHelper stack;
@@ -125,7 +129,7 @@ main (int argc, char *argv[])
 
   Packet::EnablePrinting ();
   double start = 1.0;
-  double stop = 50.0;
+  double stop = 300.0;
   uint16_t port1 = 9;
   uint16_t port2 = 10;
   uint16_t port3 = 11;
@@ -150,42 +154,50 @@ main (int argc, char *argv[])
   // Create a CdaClient application to send UDP datagrams from node zero to
   // node two.
   //
-  uint32_t packetSize = 1100;
-  uint32_t maxPacketCount = 5000;
-  Time interPacketInterval = MicroSeconds (0);
+  uint32_t packetSize1 = 300;
+  uint32_t maxPacketCount1 = 5000;
+  Time interPacketInterval1 = MicroSeconds (1000);
+
+  uint32_t packetSize2 = 300;
+  uint32_t maxPacketCount2 = 5000;
+  Time interPacketInterval2 = MicroSeconds (1000);
+
+  uint32_t packetSize3 = 300;
+  uint32_t maxPacketCount3 = 5000;
+  Time interPacketInterval3 = MicroSeconds (1000);
 
   CdaClientHelper client1 (i1i2.GetAddress (1), port1);
-  client1.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
-  client1.SetAttribute ("Interval", TimeValue (interPacketInterval));
-  client1.SetAttribute ("PacketSize", UintegerValue (packetSize));
+  client1.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount1));
+  client1.SetAttribute ("Interval", TimeValue (interPacketInterval1));
+  client1.SetAttribute ("PacketSize", UintegerValue (packetSize1));
 
   apps = client1.Install (n.Get (0));
-  apps.Start (Seconds (start + 1));
+  apps.Start (Seconds (start + 4));
   apps.Stop (Seconds (stop));
 
 
   CdaClientHelper client2 (i1i2.GetAddress (1), port2);
-  client2.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
-  client2.SetAttribute ("Interval", TimeValue (interPacketInterval));
-  client2.SetAttribute ("PacketSize", UintegerValue (packetSize));
+  client2.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount2));
+  client2.SetAttribute ("Interval", TimeValue (interPacketInterval2));
+  client2.SetAttribute ("PacketSize", UintegerValue (packetSize2));
 
   apps = client2.Install (n.Get (0));
-  apps.Start (Seconds (start + 2));
+  apps.Start (Seconds (start + 3));
   apps.Stop (Seconds (stop));
 
   CdaClientHelper client3 (i1i2.GetAddress (1), port3);
-  client2.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount));
-  client2.SetAttribute ("Interval", TimeValue (interPacketInterval));
-  client2.SetAttribute ("PacketSize", UintegerValue (packetSize));
+  client3.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount3));
+  client3.SetAttribute ("Interval", TimeValue (interPacketInterval3));
+  client3.SetAttribute ("PacketSize", UintegerValue (packetSize3));
 
   apps = client3.Install (n.Get (0));
-  apps.Start (Seconds (start + 3));
+  apps.Start (Seconds (start + 2));
   apps.Stop (Seconds (stop));
 
 
   AsciiTraceHelper ascii;
-  
-  std::string fileName = "spq-";
+
+  std::string fileName = "drr-";
   p0p1.EnablePcapAll (fileName, false);
   p1p2.EnablePcapAll (fileName, false);
 

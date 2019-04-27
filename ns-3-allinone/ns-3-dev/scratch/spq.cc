@@ -57,6 +57,7 @@ main (int argc, char *argv[])
 
   std::cout << "inputFile: " << inputFile << std::endl;
 
+/*
   // Read the json config file
   Json::Value root;
   Json::CharReaderBuilder rbuilder;
@@ -84,7 +85,7 @@ main (int argc, char *argv[])
   for (i = 0; i < numQueues; i++) {
     printf("%d ", queueLevels[i]);
   }
-
+*/
   // Explicitly create the nodes required by the topology.
   NodeContainer n;
   n.Create (3);

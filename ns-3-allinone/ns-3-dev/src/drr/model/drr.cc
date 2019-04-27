@@ -1,8 +1,12 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 
 #include "drr.h"
+#include "ns3/filter.h"
+#include "ns3/trafficclass.h"
 
 namespace ns3 {
+
+  NS_OBJECT_ENSURE_REGISTERED (DRR);
 
   const int LOW = 0;
   const int MED = 1;
@@ -10,95 +14,137 @@ namespace ns3 {
   //TODO: create a getter/setter?
   const uint32_t QUANTUM = 100;
 
-template <typename Item>
-DRR<Item>::DRR() {
+// template <typename Item>
+DRR::DRR() :DiffServ(),NS_LOG_TEMPLATE_DEFINE ("DRR") {
+
+  NS_LOG_FUNCTION (this);
+
   q_class.push_back(new TrafficClass());
   q_class.push_back(new TrafficClass());
   q_class.push_back(new TrafficClass());
+
   q_class[LOW]->SetWeight(LOW);
   q_class[MED]->SetWeight(MED);
   q_class[HIGH]->SetWeight(HIGH);
 
-  q_kind = 2;
+  q_class[LOW]->SetMode(0);
+  q_class[HIGH]->SetMode(0);
+
+  q_class[LOW]->SetMaxPackets(500);
+  q_class[HIGH]->SetMaxPackets(500);
+
+  q_kind = HIGH; //Start with high
   isNewRound = true;
   dc_arr = {0,0,0};
 }
 
-template <typename Item>
-DRR<Item>::~DRR() {
+// template <typename Item>
+DRR::~DRR() {
 
 }
 
-template <typename Item>
+// template <typename Item>
+// TypeId
+// DRR<Item>::GetTypeId (void) {
+//   static TypeId tid = TypeId (("ns3::DRR<" + GetTypeParamName<DRR<Item>>() + ">").c_str())
+//     .SetParent<DiffServ<Item>>()
+//     .SetGroupName("Network")
+//     .template AddConstructor<DRR<Item>> ()
+//     .AddAttribute("Mode",
+//                   "Whether to use bytes (see MaxBytes) or packets (see MaxPackets) as the maximum queue size metric.",
+//                   EnumValue(QUEUE_MODE_PACKETS),
+//                   MakeEnumAccessor(&DRR<Item>::SetMode,&DRR<Item>::GetMode),
+//                   MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
+//   ;
+//   return tid;
+// }
+//
 TypeId
-DRR<Item>::GetTypeId (void) {
-  static TypeId tid = TypeId (("ns3::DRR<" + GetTypeParamName<DRR<Item>>() + ">").c_str())
-    .SetParent<DiffServ<Item>>()
+DRR::GetTypeId (void) {
+  static TypeId tid = TypeId ("ns3::DRR<Packet>")
+    .SetParent<DiffServ<Packet>> ()
     .SetGroupName("Network")
-    .template AddConstructor<DRR<Item>> ()
+    .template AddConstructor<DRR> ()
     .AddAttribute("Mode",
                   "Whether to use bytes (see MaxBytes) or packets (see MaxPackets) as the maximum queue size metric.",
                   EnumValue(QUEUE_MODE_PACKETS),
-                  MakeEnumAccessor(&DRR<Item>::SetMode,&DRR<Item>::GetMode),
+                  MakeEnumAccessor(&DRR::SetMode,&DRR::GetMode),
                   MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
+
   ;
   return tid;
 }
-//
-template <typename Item>
-Ptr<Item>
-DRR<Item>::Schedule (void) {
+
+// template <typename Item>
+Ptr<Packet>
+DRR::Schedule (void) {
+  NS_LOG_FUNCTION (this);
+
+  //if all queues are empty, return 0
+  if (q_class[HIGH]->isEmpty() && q_class[MED]->isEmpty() && q_class[LOW]->isEmpty()) {
+    return 0;
+  }
+
   switch (this->q_kind)
   {
-    case 2:
+    case HIGH: //HIGH
             if(isNewRound) { //if scheduling for the first time, inc dc
               dc_arr[HIGH] += QUANTUM*(HIGH+1);
               isNewRound = false;
             }
             if(!q_class[HIGH]->isEmpty()) {
-              Ptr<Item> p = q_class[HIGH]->m_queue.front();
+              Ptr<Packet> p = q_class[HIGH]->m_queue.front();
               if(p->GetSize() <= dc_arr[HIGH]) {
                 Ptr<Packet> res = q_class[HIGH]->Dequeue();
                 dc_arr[HIGH] -= res->GetSize();
                 return res;
-              } else {
-                q_kind = 1;
+              } else { //not enough dc, move to MED
+                q_kind = MED;
                 isNewRound = true;
               }
+            } else { //if queue is empty
+              q_kind = MED;
+              isNewRound = true;
             }
             break;
-    case 1:
+    case MED:
             if(isNewRound) { //if scheduling for the first time, inc dc
               dc_arr[MED] += QUANTUM*(MED+1);
               isNewRound = false;
             }
             if(!q_class[MED]->isEmpty()) {
-              Ptr<Item> p = q_class[MED]->m_queue.front();
+              Ptr<Packet> p = q_class[MED]->m_queue.front();
               if(p->GetSize() <= dc_arr[MED]) {
-                Ptr<Item> res = q_class[MED]->Dequeue();
+                Ptr<Packet> res = q_class[MED]->Dequeue();
                 dc_arr[MED] -= res->GetSize();
                 return res;
               } else {
-                q_kind = 0;
+                q_kind = LOW;
                 isNewRound = true;
               }
+            } else { //if queue is empty
+              q_kind = LOW;
+              isNewRound = true;
             }
             break;
-    case 0:
+    case LOW:
             if(isNewRound) { //if scheduling for the first time, inc dc
               dc_arr[LOW] += QUANTUM*(LOW+1);
               isNewRound = false;
             }
             if(!q_class[LOW]->isEmpty()) {
-              Ptr<Item> p = q_class[LOW]->m_queue.front();
+              Ptr<Packet> p = q_class[LOW]->m_queue.front();
               if(p->GetSize() <= dc_arr[LOW]) {
-                Ptr<Item> res = q_class[LOW]->Dequeue();
+                Ptr<Packet> res = q_class[LOW]->Dequeue();
                 dc_arr[LOW] -= res->GetSize();
                 return res;
               } else {
-                q_kind = 2;
+                q_kind = HIGH;
                 isNewRound = true;
               }
+            } else { //if queue is empty
+              q_kind = HIGH;
+              isNewRound = true;
             }
             break;
       default:
@@ -107,9 +153,10 @@ DRR<Item>::Schedule (void) {
       return 0;
 }
 
-template <typename Item>
+//template <typename Item>
 uint32_t
-DRR<Item>::Classify (Ptr<Item> p) {
+DRR::Classify (Ptr<Packet> p) {
+  NS_LOG_FUNCTION (this);
   if(q_class[HIGH]->match(p)) {
     return 2;
   } else if(q_class[MED]->match(p)) {
@@ -119,9 +166,10 @@ DRR<Item>::Classify (Ptr<Item> p) {
   }
 }
 
-template <typename Item>
+// template <typename Item>
 bool
-DRR<Item>::DoEnqueue(Ptr<Item> p) {
+DRR::Enqueue(Ptr<Packet> p) {
+  NS_LOG_FUNCTION (this);
   uint32_t weight = Classify(p);
   if(weight == 2) {
     return q_class[HIGH]->Enqueue(p);
@@ -132,36 +180,122 @@ DRR<Item>::DoEnqueue(Ptr<Item> p) {
   }
 }
 
-template <typename Item>
-Ptr<Item>
-DRR<Item>::DoDequeue (void) {
-  Ptr<Item> p = Schedule();
+// template <typename Item>
+Ptr<Packet>
+DRR::Dequeue (void) {
+  NS_LOG_FUNCTION (this);
+  Ptr<Packet> p = Schedule();
   return p;
 }
-//
-// template <typename Item>
-// Ptr<const Packet>
-// DRR<Item>::DoPeek (void) const {
-//
-// }
-//
-// template <typename Item>
-// Ptr<Packet>
-// DRR<Item>::DoRemove (void) {
-//   //TODO: Change
-//   Ptr<Packet> p = Create<Packet> (1024);
-//   return p;
-// }
 
-template <typename Item>
+// template <typename Item>
+Ptr<const Packet>
+DRR::Peek (void) const {
+  NS_LOG_FUNCTION (this);
+
+  //if all queues are empty, return 0
+  if (q_class[HIGH]->isEmpty() && q_class[MED]->isEmpty() && q_class[LOW]->isEmpty()) {
+    return 0;
+  }
+
+  int peek_q_kind = this->q_kind;
+  bool peek_is_new = this->isNewRound;
+
+  Ptr<Packet> p;
+  while (true) {
+    switch (peek_q_kind)
+    {
+      case HIGH:
+            if(!q_class[HIGH]->isEmpty()) {
+              p = q_class[HIGH]->m_queue.front();
+              if(peek_is_new) {
+                if(dc_arr[HIGH]+QUANTUM*(HIGH+1) >= p->GetSize()){
+                  return p;
+                } else {
+                  peek_q_kind = MED;
+                  //peek_is_new is still true
+                }
+              } else { // !peek_is_new
+                if(dc_arr[HIGH] >=  p->GetSize()) {
+                  return p;
+                } else {
+                  peek_q_kind = MED;
+                  peek_is_new = true;
+                }
+              }
+            } else { //if queue is empty
+              peek_q_kind = MED;
+            }
+              break;
+      case MED:
+            if(!q_class[MED]->isEmpty()) {
+              p = q_class[MED]->m_queue.front();
+              if(peek_is_new) {
+                if(dc_arr[MED]+QUANTUM*(MED+1) >= p->GetSize()){
+                  return p;
+                } else {
+                  peek_q_kind = LOW;
+                  //peek_is_new is still true
+                }
+              } else { // !peek_is_new
+                if(dc_arr[MED] >= p->GetSize()) {
+                  return p;
+                } else {
+                  peek_q_kind = LOW;
+                  peek_is_new = true;
+                }
+              }
+            } else { //if queue is empty
+              peek_q_kind = LOW;
+            }
+              break;
+      case LOW:
+            if(!q_class[LOW]->isEmpty()) {
+              p = q_class[LOW]->m_queue.front();
+              if(peek_is_new) {
+                if(dc_arr[LOW]+QUANTUM*(LOW+1) >= p->GetSize()){
+                  return p;
+                } else {
+                  peek_q_kind = HIGH;
+                  //peek_is_new is still true
+                }
+              } else { // !peek_is_new
+                if(dc_arr[LOW] >= p->GetSize()) {
+                  return p;
+                } else {
+                  peek_q_kind = HIGH;
+                  peek_is_new = true;
+                }
+              }
+            } else { //if queue is empty
+              peek_q_kind = HIGH;
+            }
+              break;
+        default:
+          return 0;
+    }
+  }
+  return 0;//never reached
+
+}
+
+// template <typename Item>
+Ptr<Packet>
+DRR::Remove (void) {
+  Ptr<Packet> p = Dequeue();
+  DropAfterDequeue(p);
+  return p;
+}
+
+// template <typename Item>
 void
-DRR<Item>::SetMode (DRR<Item>::QueueMode mode) {
+DRR::SetMode (DRR::QueueMode mode) {
   m_mode = mode;
 }
 
-template <typename Item>
-typename DRR<Item>::QueueMode
-DRR<Item>::GetMode (void) const {
+// template <typename Item>
+typename DRR::QueueMode
+DRR::GetMode (void) const {
   return m_mode;
 }
 

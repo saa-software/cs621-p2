@@ -1,5 +1,5 @@
 {
     "numerOfQueues": 2,
-    "queue00": 0,
-    "queue01": 1
+    "q0": 0,
+    "q1": 1
 }

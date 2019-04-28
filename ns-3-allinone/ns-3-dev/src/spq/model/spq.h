@@ -34,6 +34,7 @@ public:
   SPQ::QueueMode GetMode (void) const;
   void SetNumberOfQueues (int numberOfQueues);
   void SetQueueLevels (std::string queueLevels);
+  void Setup (int s);
   // void SetQueueLevels (vector<IntegerValue> queueLevels);
 
 private:

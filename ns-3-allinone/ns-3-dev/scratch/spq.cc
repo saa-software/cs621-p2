@@ -87,7 +87,8 @@ main (int argc, char *argv[])
   }
   // End json parsing
 
-  std::cout << "queuelevels " << queueLevels[1] << std::endl;
+  std::cout << "numberQueues " << numQueues << std::endl;
+  std::cout << "queuelevels " << queueLevels << std::endl;
   // for (i = 0; i < numQueues; i++) {
   //   printf("%d ", queueLevels[i]);
   // }
@@ -110,7 +111,8 @@ main (int argc, char *argv[])
   p1p2.SetQueue("ns3::SPQ",
                 "Mode", StringValue ("QUEUE_MODE_PACKETS"),
                 "NumberOfQueues", IntegerValue (numQueues),
-                "QueueLevels", StringValue (queueLevels));
+                "QueueLevels", StringValue (queueLevels),
+                "Setup", IntegerValue (1));
   // p1p2.SetQueue("ns3::SPQ",
   //               "Mode", StringValue ("QUEUE_MODE_PACKETS"),
   //               "SPQConfig", PointerValue (config));

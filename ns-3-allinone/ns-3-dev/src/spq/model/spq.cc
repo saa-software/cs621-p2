@@ -27,7 +27,7 @@ namespace ns3 {
       .SetParent<DiffServ<Packet>> ()
       .SetGroupName("Network")
       .template AddConstructor<SPQ> ()
-      .AddAttribute("Mode",
+            .AddAttribute("Mode",
                     "Whether to use bytes (see MaxBytes) or packets (see MaxPackets) as the maximum queue size metric.",
                     EnumValue(QUEUE_MODE_PACKETS),
                     MakeEnumAccessor(&SPQ::SetMode,&SPQ::GetMode),
@@ -42,17 +42,12 @@ namespace ns3 {
                     StringValue (""),
                     MakeStringAccessor (&SPQ::SetQueueLevels),
                     MakeStringChecker ())
-      // .AddAttribute("SPQConfig",
-      //               "Configuration for SPQ", 
-      //               PointerValue (Ptr<SPQConfig>),
-      //               MakeIntegerAccessor (&SPQ::SetCon),
-      //               MakeIntegerChecker<int> (INTMAX_MIN, INTMAX_MAX))
-      // .AddAttribute("QueueLevels",
-      //               "This vector specified the level of each queue.",
-      //               ObjectVectorValue (),
-      //               MakeObjectVectorAccessor (&SPQ::SetQueueLevels),
-      //               MakeObjectVectorChecker<IntegerValue> ())
-    ;
+      .AddAttribute("Setup",
+                    "Initiates setup for SPQ queue.",
+                    IntegerValue (1),
+                    MakeIntegerAccessor (&SPQ::Setup),
+                    MakeIntegerChecker<int> (INT64_MIN, INT64_MAX))
+      ;
     return tid;
   }
 
@@ -60,12 +55,15 @@ namespace ns3 {
   SPQ::SetNumberOfQueues (int numberOfQueues)
   {
     NS_LOG_FUNCTION (this << numberOfQueues);
+    printf ("\n\nsetting num queues %d\n\n\n", numberOfQueues);
     m_numberOfQueues = numberOfQueues;
   }
 
   void
   SPQ::SetQueueLevels (std::string queueLevels) {
     NS_LOG_FUNCTION (this << queueLevels);
+    std::cout << "\n\nsetting queuelevels " << queueLevels << std::endl;
+    printf("\n\n");
     m_queueLevels = queueLevels;
   }
 
@@ -80,18 +78,77 @@ namespace ns3 {
   SPQ::SPQ (): DiffServ (),NS_LOG_TEMPLATE_DEFINE ("SPQ") {
 
     NS_LOG_FUNCTION (this);
+    // printf("\n\ncreating queue class\n\n\n");
 
-    q_class.push_back(new TrafficClass());
-    q_class.push_back(new TrafficClass());
+    // int i;
+    // printf("entering loop\n");
+    // for (i = 0; i < m_numberOfQueues; i++) {
+    //   printf("new tc\n");
+    //   TrafficClass tc = TrafficClass ();
+    //   q_class.push_back (&tc);
+    //   printf("new tc added\n");
+    //   q_class[i]->SetPriorityLevel (m_queueLevels[i]);
+    //   q_class[i]->SetMode (0);
+    //   q_class[i]->SetMaxPackets (500);
+    // }
+
+    // q_class.push_back(new TrafficClass());
+    // q_class.push_back(new TrafficClass());
     
-    q_class[LOW]->SetPriorityLevel(LOW);
-    q_class[HIGH]->SetPriorityLevel(HIGH);
+    // q_class[LOW]->SetPriorityLevel(LOW);
+    // q_class[HIGH]->SetPriorityLevel(HIGH);
 
-    q_class[LOW]->SetMode(0);
-    q_class[HIGH]->SetMode(0);
+    // q_class[LOW]->SetMode(0);
+    // q_class[HIGH]->SetMode(0);
 
-    q_class[LOW]->SetMaxPackets(500);
-    q_class[HIGH]->SetMaxPackets(500);
+    // q_class[LOW]->SetMaxPackets(500);
+    // q_class[HIGH]->SetMaxPackets(500);
+
+    // vector<FilterElements*> feLow;
+    // feLow.push_back(new Destination_Port_Number(9));
+
+    // vector<Filter*> fLow;
+    // fLow.push_back(new Filter());
+    // fLow[0]->set(feLow);
+    // q_class[LOW]->SetFilters(fLow);
+
+    // vector<FilterElements*> feHigh;
+    // feHigh.push_back(new Destination_Port_Number(10));
+
+    // vector<Filter*> fHigh;
+    // fHigh.push_back(new Filter());
+    // fHigh[0]->set(feHigh);
+    // q_class[HIGH]->SetFilters(fHigh);
+  }
+
+  void
+  SPQ::Setup (int s) {
+    NS_LOG_FUNCTION (this);
+    printf("\n\ncreating queue class\n\n\n");
+
+    int i;
+    printf("entering loop\n");
+    for (i = 0; i < m_numberOfQueues; i++) {
+      printf("new tc\n");
+      TrafficClass tc = TrafficClass ();
+      q_class.push_back (&tc);
+      printf("new tc added\n");
+      q_class[i]->SetPriorityLevel (m_queueLevels[i]);
+      q_class[i]->SetMode (0);
+      q_class[i]->SetMaxPackets (500);
+    }
+
+    // q_class.push_back(new TrafficClass());
+    // q_class.push_back(new TrafficClass());
+    
+    // q_class[LOW]->SetPriorityLevel(LOW);
+    // q_class[HIGH]->SetPriorityLevel(HIGH);
+
+    // q_class[LOW]->SetMode(0);
+    // q_class[HIGH]->SetMode(0);
+
+    // q_class[LOW]->SetMaxPackets(500);
+    // q_class[HIGH]->SetMaxPackets(500);
 
     vector<FilterElements*> feLow;
     feLow.push_back(new Destination_Port_Number(9));
@@ -226,6 +283,7 @@ namespace ns3 {
   // template <typename Item>
   void
   SPQ::SetMode (SPQ::QueueMode mode) {
+    printf("setting queue mode\n");
     m_mode = mode;
   }
 

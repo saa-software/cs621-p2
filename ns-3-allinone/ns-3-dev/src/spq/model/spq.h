@@ -26,12 +26,14 @@ public:
     QUEUE_MODE_BYTES,
   };
   int m_numberOfQueues;
+  std::string m_queueLevels;
   // vector<IntegerValue> m_queueLevels;
   Ptr<Packet> Schedule (void);
   uint32_t Classify (Ptr<Packet> p);
   void SetMode (SPQ::QueueMode mode);
   SPQ::QueueMode GetMode (void) const;
   void SetNumberOfQueues (int numberOfQueues);
+  void SetQueueLevels (std::string queueLevels);
   // void SetQueueLevels (vector<IntegerValue> queueLevels);
 
 private:
@@ -45,18 +47,18 @@ private:
   NS_LOG_TEMPLATE_DECLARE;
 };
 
-class SPQConfig : public ns3::Object {
-  public:
+// class SPQConfig : public ns3::Object {
+//   public:
 
-  // SPQConfig (int numQs);
-  // ~SPQConfig ();
+//   // SPQConfig (int numQs);
+//   // ~SPQConfig ();
 
-  void SetNumberOfQueues  (int numQs);
-  std::vector<int> queueLevels;
+//   void SetNumberOfQueues  (int numQs);
 
-  private:
-  int m_numberOfQueues;
-};
+
+//   private:
+//   int m_numberOfQueues;
+// };
 
 // extern template class SPQ<Packet>;
 // extern template class SPQ<QueueDiscItem>;

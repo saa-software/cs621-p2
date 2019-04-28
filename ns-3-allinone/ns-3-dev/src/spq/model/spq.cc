@@ -9,6 +9,8 @@ using namespace std;
 #include "ns3/trafficclass.h"
 #include "ns3/integer.h"
 #include "ns3/object-vector.h"
+#include "ns3/pointer.h"
+#include "ns3/string.h"
 
 namespace ns3 {
 
@@ -31,10 +33,20 @@ namespace ns3 {
                     MakeEnumAccessor(&SPQ::SetMode,&SPQ::GetMode),
                     MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
       .AddAttribute("NumberOfQueues",
-                    "How many queues to use with SPQ.", 
+                    "The number of queues to use in SPQ",
                     IntegerValue (0),
                     MakeIntegerAccessor (&SPQ::SetNumberOfQueues),
-                    MakeIntegerChecker<int> (INTMAX_MIN, INTMAX_MAX))
+                    MakeIntegerChecker<int> (INT64_MIN, INT64_MAX))
+      .AddAttribute("QueueLevels",
+                    "A string that represents the level for each queue. Number of chars must match queue levels.",
+                    StringValue (""),
+                    MakeStringAccessor (&SPQ::SetQueueLevels),
+                    MakeStringChecker ())
+      // .AddAttribute("SPQConfig",
+      //               "Configuration for SPQ", 
+      //               PointerValue (Ptr<SPQConfig>),
+      //               MakeIntegerAccessor (&SPQ::SetCon),
+      //               MakeIntegerChecker<int> (INTMAX_MIN, INTMAX_MAX))
       // .AddAttribute("QueueLevels",
       //               "This vector specified the level of each queue.",
       //               ObjectVectorValue (),
@@ -49,6 +61,12 @@ namespace ns3 {
   {
     NS_LOG_FUNCTION (this << numberOfQueues);
     m_numberOfQueues = numberOfQueues;
+  }
+
+  void
+  SPQ::SetQueueLevels (std::string queueLevels) {
+    NS_LOG_FUNCTION (this << queueLevels);
+    m_queueLevels = queueLevels;
   }
 
   // void
@@ -217,10 +235,10 @@ namespace ns3 {
     return m_mode;
   }
 
-  void
-  SPQConfig::SetNumberOfQueues (int numQs) {
-    m_numberOfQueues = numQs;
-  }
+  // void
+  // SPQConfig::SetNumberOfQueues (int numQs) {
+  //   m_numberOfQueues = numQs;
+  // }
 
   // void
   // SPQConfig::SetNumberOfQueues (int numQs) {

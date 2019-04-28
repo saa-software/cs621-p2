@@ -70,26 +70,28 @@ main (int argc, char *argv[])
   const Json::Value outputNumQueues = root["numerOfQueues"];
   std::string numQueuesStr = Json::writeString (wbuilder, outputNumQueues);
   int numQueues = stoi (numQueuesStr);
-  Ptr<SPQConfig> config = CreateObject<SPQConfig> ();
-  config->SetNumberOfQueues (numQueues);
+  // Ptr<SPQConfig> config = CreateObject<SPQConfig> ();
+  // config->SetNumberOfQueues (numQueues);
   // SPQConfig spqConfig (numQueues);
   // Get level for each queue
-  std:: vector<int> queueLevels;
+  // std:: vector<int> queueLevels;
+  std::string queueLevels;
   int i;
   for (i = 0; i < numQueues; i++) {
       std::string q = "q" + to_string(i);
       const Json::Value outputQ0 = root[q];
       std::string q0Str = Json::writeString (wbuilder, outputQ0);
       int qVal = stoi (q0Str);
-      queueLevels.push_back(qVal);
+      // queueLevels.push_back(qVal);
+      queueLevels = queueLevels + std::to_string (qVal);
   }
   // End json parsing
 
   std::cout << "queuelevels " << queueLevels[1] << std::endl;
-  for (i = 0; i < numQueues; i++) {
-    printf("%d ", queueLevels[i]);
-  }
-  printf("\n");
+  // for (i = 0; i < numQueues; i++) {
+  //   printf("%d ", queueLevels[i]);
+  // }
+  // printf("\n");
 
   // Explicitly create the nodes required by the topology.
   NodeContainer n;
@@ -105,11 +107,13 @@ main (int argc, char *argv[])
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-  // p1p2.SetQueue("ns3::SPQ",
-                // "Mode", StringValue ("QUEUE_MODE_PACKETS"));
   p1p2.SetQueue("ns3::SPQ",
                 "Mode", StringValue ("QUEUE_MODE_PACKETS"),
-                "SPQConfig", PointerValue (config));
+                "NumberOfQueues", IntegerValue (numQueues),
+                "QueueLevels", StringValue (queueLevels));
+  // p1p2.SetQueue("ns3::SPQ",
+  //               "Mode", StringValue ("QUEUE_MODE_PACKETS"),
+  //               "SPQConfig", PointerValue (config));
   // p1p2.SetQueue("ns3::SPQ",
   //               "Mode", StringValue ("QUEUE_MODE_PACKETS"),
   //               "NumberOfQueues", IntegerValue (numQueues),

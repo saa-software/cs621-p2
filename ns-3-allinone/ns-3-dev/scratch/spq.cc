@@ -55,37 +55,33 @@ main (int argc, char *argv[])
   cmd.AddValue ("i", "inputFile for SPQ Application", inputFile);
   cmd.Parse (argc, argv);
 
-  std::cout << "inputFile: " << inputFile << std::endl;
+  std::cout << "InputFile: " << inputFile << std::endl;
 
-/*
   // Read the json config file
   Json::Value root;
   Json::CharReaderBuilder rbuilder;
   std::string errs;
-  std::ifstream config_doc(inputFile, std::ifstream::binary);
+  std::ifstream config_doc (inputFile, std::ifstream::binary);
   config_doc >> root;
   Json::parseFromStream (rbuilder, config_doc, &root, &errs);
   Json::StreamWriterBuilder wbuilder;
   // Get number of queues
-  const Json::Value outputNumQueues = root["numerOfQueues"];
+  const Json::Value outputNumQueues = root["numberOfQueues"];
   std::string numQueuesStr = Json::writeString (wbuilder, outputNumQueues);
+
   int numQueues = stoi (numQueuesStr);
-  // Get level for each queue
-  int queueLevels[numQueues];
+  std::string queueLevels;
   int i;
-  for (i = 0; i < numQueues; i++) {
-      std::string q = "q" + to_string(i);
+  for (i = 0; i < numQueues; i++)
+    {
+      std::string q = "q" + to_string (i);
       const Json::Value outputQ0 = root[q];
       std::string q0Str = Json::writeString (wbuilder, outputQ0);
-      int qVal = stoi (q0Str);
-      queueLevels[i] = qVal;
-  }
+      // int qVal = stoi (q0Str);
+      queueLevels = queueLevels + q0Str;
+    }
   // End json parsing
 
-  for (i = 0; i < numQueues; i++) {
-    printf("%d ", queueLevels[i]);
-  }
-*/
   // Explicitly create the nodes required by the topology.
   NodeContainer n;
   n.Create (3);
@@ -100,7 +96,11 @@ main (int argc, char *argv[])
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-  p1p2.SetQueue("ns3::SPQ", "Mode", StringValue ("QUEUE_MODE_PACKETS"));
+  p1p2.SetQueue ("ns3::SPQ",
+                 "Mode", StringValue ("QUEUE_MODE_PACKETS"),
+                 "NumberOfQueues", IntegerValue (numQueues),
+                 "QueueLevels", StringValue (queueLevels),
+                 "Setup", IntegerValue (1));
 
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);
 

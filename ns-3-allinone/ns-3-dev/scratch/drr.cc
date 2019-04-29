@@ -55,42 +55,32 @@ main (int argc, char *argv[])
   cmd.AddValue ("i", "inputFile for DRR Application", inputFile);
   cmd.Parse (argc, argv);
 
-  std::cout << "inputFile: " << inputFile << std::endl;
+  std::cout << "InputFile: " << inputFile << std::endl;
 
-    // Read the json config file to get the compression protocol
-  // Json::Value root;
-  // Json::CharReaderBuilder rbuilder;
-  // std::ifstream file (inputFile);
-  // file >> root;
-  // const Json::Value CompressionProtocol = root["compression_protocol"];
-  // Json::Value root;
-  // Json::CharReaderBuilder rbuilder;
-  // // Configure the Builder, then ...
-  // std::string errs;
-  // std::ifstream config_doc(inputFile, std::ifstream::binary);
-  // config_doc >> root;
-  // // printf("1\n");
-  // bool parsingSuccessful = Json::parseFromStream (rbuilder, config_doc, &root, &errs);
-  // Json::parseFromStream (rbuilder, config_doc, &root, &errs);
-  // printf("success: %d\n", parsingSuccessful);
-  // if (!parsingSuccessful)
-  //   {
-  //     // report to the user the failure and their locations in the document.
-  //     std::cout << "Failed to parse configuration\n" << errs;
-  //     return 0;
-  //   }
-  // printf("2\n");
-  // ...
-  // Json::StreamWriterBuilder wbuilder;
-  // Configure the Builder, then ...
+  // Read the json config file
+  Json::Value root;
+  Json::CharReaderBuilder rbuilder;
+  std::string errs;
+  std::ifstream config_doc (inputFile, std::ifstream::binary);
+  config_doc >> root;
+  Json::parseFromStream (rbuilder, config_doc, &root, &errs);
+  Json::StreamWriterBuilder wbuilder;
+  // Get number of queues
+  const Json::Value outputNumQueues = root["numberOfQueues"];
+  std::cout << "Num Queues: " << outputNumQueues << std::endl;
+  std::string numQueuesStr = Json::writeString (wbuilder, outputNumQueues);
 
-  // std::string outputConfig = Json::writeString (wbuilder, root);
-  // std::cout << "JSON: " << outputConfig << std::endl;
-  // const Json::Value outputCompressionProtocol = root["compression_protocol"];
-  // std::string compressionProtocol = Json::writeString (wbuilder, outputCompressionProtocol);
-  // std::cout << "COMPRESSION PROTO: " << compressionProtocol << std::endl;
-  // int proto = stoi (compressionProtocol);
-
+  int numQueues = stoi (numQueuesStr);
+  std::string queueQuantums;
+  int i;
+  for (i = 0; i < numQueues; i++)
+    {
+      std::string q = "q" + to_string (i);
+      const Json::Value outputQ0 = root[q];
+      std::string q0Str = Json::writeString (wbuilder, outputQ0);
+      int qVal = stoi (q0Str);
+      queueQuantums = queueQuantums + std::to_string (qVal);
+    }
   // End json parsing
 
   // Explicitly create the nodes required by the topology.
@@ -108,7 +98,12 @@ main (int argc, char *argv[])
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-  p1p2.SetQueue("ns3::DRR", "Mode", StringValue("QUEUE_MODE_PACKETS"));
+  // p1p2.SetQueue("ns3::DRR", "Mode", StringValue("QUEUE_MODE_PACKETS"));
+  p1p2.SetQueue ("ns3::DRR",
+                 "Mode", StringValue ("QUEUE_MODE_PACKETS"),
+                 "NumberOfQueues", IntegerValue (numQueues),
+                 "QueueLevels", StringValue (queueQuantums),
+                 "Setup", IntegerValue (1));
 
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);
 

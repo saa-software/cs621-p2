@@ -29,14 +29,19 @@ public:
   uint32_t Classify (Ptr<Packet> p);
   void SetMode (SPQ::QueueMode mode);
   SPQ::QueueMode GetMode (void) const;
+  void SetNumberOfQueues (int numberOfQueues);
+  void SetQueueLevels (std::string queueLevels);
+  void Setup (int s);
 
 private:
-   virtual bool Enqueue(Ptr<Packet> p);
-   virtual Ptr<Packet> Dequeue (void);
-   virtual Ptr<const Packet> Peek (void) const;
-   virtual Ptr<Packet> Remove (void);
-  std::vector<TrafficClass*> q_class;
+  virtual bool Enqueue(Ptr<Packet> p);
+  virtual Ptr<Packet> Dequeue (void);
+  virtual Ptr<const Packet> Peek (void) const;
+  virtual Ptr<Packet> Remove (void);
+  std::vector<TrafficClass *> q_class;
   QueueMode m_mode;
+  int m_numberOfQueues;
+  std::string m_queueLevels;
 
   NS_LOG_TEMPLATE_DECLARE;
 };

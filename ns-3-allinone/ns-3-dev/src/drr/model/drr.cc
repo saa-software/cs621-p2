@@ -4,6 +4,7 @@
 #include "ns3/filter.h"
 #include "ns3/trafficclass.h"
 #include "ns3/log.h"
+#include "ns3/string.h"
 
 namespace ns3 {
 
@@ -15,59 +16,112 @@ namespace ns3 {
   //TODO: create a getter/setter?
   const uint32_t QUANTUM = 1000;
 
+TypeId
+DRR::GetTypeId (void) {
+  static TypeId tid = TypeId ("ns3::DRR<Packet>")
+    .SetParent<DiffServ<Packet>> ()
+    .SetGroupName("Network")
+    .template AddConstructor<DRR> ()
+    .AddAttribute("Mode",
+                  "Whether to use bytes (see MaxBytes) or packets (see MaxPackets) as the maximum queue size metric.",
+                  EnumValue(QUEUE_MODE_PACKETS),
+                  MakeEnumAccessor(&DRR::SetMode,&DRR::GetMode),
+                  MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
+    .AddAttribute("NumberOfQueues", "The number of queues to use in DRR", IntegerValue (0),
+                  MakeIntegerAccessor (&DRR::SetNumberOfQueues),
+                  MakeIntegerChecker<int> (INT64_MIN, INT64_MAX))
+    .AddAttribute("QueueLevels",
+                  "A string that represents the level for each queue. Number of chars must "
+                  "match queue levels.",
+                  StringValue (""), MakeStringAccessor (&DRR::SetQueueQuantums),
+                  MakeStringChecker ())
+    .AddAttribute("Setup", "Initiates setup for SPQ queue.", IntegerValue (1),
+                  MakeIntegerAccessor (&DRR::Setup),
+                  MakeIntegerChecker<int> (INT64_MIN, INT64_MAX));
+  ;
+  return tid;
+}
+
+
 // template <typename Item>
 DRR::DRR() :DiffServ(),NS_LOG_TEMPLATE_DEFINE ("DRR") {
-
   NS_LOG_FUNCTION (this);
-
-  q_class.push_back(new TrafficClass());
-  q_class.push_back(new TrafficClass());
-  q_class.push_back(new TrafficClass());
-
-  q_class[LOW]->SetWeight(LOW);
-  q_class[MED]->SetWeight(MED);
-  q_class[HIGH]->SetWeight(HIGH);
-
-  q_class[LOW]->SetMode(0);
-  q_class[MED]->SetMode(0);
-  q_class[HIGH]->SetMode(0);
-
-  q_class[LOW]->SetMaxPackets(500);
-  q_class[MED]->SetMaxPackets(500);
-  q_class[HIGH]->SetMaxPackets(500);
-
-  vector<FilterElements*> feLow;
-  feLow.push_back(new Destination_Port_Number(9));
-
-  vector<Filter*> fLow;
-  fLow.push_back(new Filter());
-  fLow[0]->set(feLow);
-  q_class[LOW]->SetFilters(fLow);
-
-  vector<FilterElements*> feMed;
-  feMed.push_back(new Destination_Port_Number(10));
-
-  vector<Filter*> fMed;
-  fMed.push_back(new Filter());
-  fMed[0]->set(feMed);
-  q_class[MED]->SetFilters(fMed);
-
-  vector<FilterElements*> feHigh;
-  feHigh.push_back(new Destination_Port_Number(11));
-
-  vector<Filter*> fHigh;
-  fHigh.push_back(new Filter());
-  fHigh[0]->set(feHigh);
-  q_class[HIGH]->SetFilters(fHigh);
-
-  q_kind = HIGH; //Start with high
-  isNewRound = true;
-  dc_arr = {0,0,0};
 }
 
 // template <typename Item>
-DRR::~DRR() {
+DRR::~DRR() {}
 
+void
+DRR::Setup(int s) {
+
+    NS_LOG_FUNCTION (this);
+
+    int i;
+    int port = 9;
+    for (i = 0; i < m_numberOfQueues; i++)
+      {
+        // New traffic class
+        q_class.push_back (new TrafficClass ());
+        q_class[i]->SetPriorityLevel (m_queueQuantums[i]);
+        q_class[i]->SetMode (0);
+        q_class[i]->SetMaxPackets (500);
+        // New filter elements vec
+        vector<FilterElements *> fe;
+        fe.push_back (new Destination_Port_Number (port));
+        port = port + 1;
+        // Add to filters
+        vector<Filter *> f;
+        f.push_back (new Filter ());
+        f[0]->set (fe);
+        q_class[i]->SetFilters (f);
+      }
+
+      q_kind = HIGH; //Start with high
+      isNewRound = true;
+      dc_arr = {0,0,0};
+  // q_class.push_back(new TrafficClass());
+  // q_class.push_back(new TrafficClass());
+  // q_class.push_back(new TrafficClass());
+
+  // q_class[LOW]->SetWeight(LOW);
+  // q_class[MED]->SetWeight(MED);
+  // q_class[HIGH]->SetWeight(HIGH);
+
+  // q_class[LOW]->SetMode(0);
+  // q_class[MED]->SetMode(0);
+  // q_class[HIGH]->SetMode(0);
+
+  // q_class[LOW]->SetMaxPackets(500);
+  // q_class[MED]->SetMaxPackets(500);
+  // q_class[HIGH]->SetMaxPackets(500);
+
+  // vector<FilterElements*> feLow;
+  // feLow.push_back(new Destination_Port_Number(9));
+
+  // vector<Filter*> fLow;
+  // fLow.push_back(new Filter());
+  // fLow[0]->set(feLow);
+  // q_class[LOW]->SetFilters(fLow);
+
+  // vector<FilterElements*> feMed;
+  // feMed.push_back(new Destination_Port_Number(10));
+
+  // vector<Filter*> fMed;
+  // fMed.push_back(new Filter());
+  // fMed[0]->set(feMed);
+  // q_class[MED]->SetFilters(fMed);
+
+  // vector<FilterElements*> feHigh;
+  // feHigh.push_back(new Destination_Port_Number(11));
+
+  // vector<Filter*> fHigh;
+  // fHigh.push_back(new Filter());
+  // fHigh[0]->set(feHigh);
+  // q_class[HIGH]->SetFilters(fHigh);
+
+  // q_kind = HIGH; //Start with high
+  // isNewRound = true;
+  // dc_arr = {0,0,0};
 }
 
 // template <typename Item>
@@ -86,21 +140,21 @@ DRR::~DRR() {
 //   return tid;
 // }
 //
-TypeId
-DRR::GetTypeId (void) {
-  static TypeId tid = TypeId ("ns3::DRR<Packet>")
-    .SetParent<DiffServ<Packet>> ()
-    .SetGroupName("Network")
-    .template AddConstructor<DRR> ()
-    .AddAttribute("Mode",
-                  "Whether to use bytes (see MaxBytes) or packets (see MaxPackets) as the maximum queue size metric.",
-                  EnumValue(QUEUE_MODE_PACKETS),
-                  MakeEnumAccessor(&DRR::SetMode,&DRR::GetMode),
-                  MakeEnumChecker(QUEUE_MODE_BYTES,"QUEUE_MODE_BYTES", QUEUE_MODE_PACKETS, "QUEUE_MODE_PACKETS"))
 
-  ;
-  return tid;
-}
+
+  void
+  DRR::SetNumberOfQueues (int numberOfQueues)
+  {
+    NS_LOG_FUNCTION (this << numberOfQueues);
+    m_numberOfQueues = numberOfQueues;
+  }
+
+  void
+  DRR::SetQueueQuantums (std::string queueQuantums)
+  {
+    NS_LOG_FUNCTION (this << queueQuantums);
+    m_queueQuantums = queueQuantums;
+  }
 
 // template <typename Item>
 Ptr<Packet>

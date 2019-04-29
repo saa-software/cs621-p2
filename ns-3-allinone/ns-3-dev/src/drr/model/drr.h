@@ -27,6 +27,9 @@ public:
   uint32_t Classify (Ptr<Packet> p);
   void SetMode (DRR::QueueMode mode);
   DRR::QueueMode GetMode (void) const;
+  void SetNumberOfQueues (int numberOfQueues);
+  void SetQueueQuantums (std::string queueLevels);
+  void Setup (int s);
 
 private:
   virtual bool Enqueue(Ptr<Packet> p);
@@ -39,6 +42,8 @@ private:
   int q_kind;
   bool isNewRound;
   std::vector<uint32_t> dc_arr;
+  int m_numberOfQueues;
+  std::string m_queueQuantums;
 
   NS_LOG_TEMPLATE_DECLARE;
 };

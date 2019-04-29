@@ -13,21 +13,20 @@ namespace ns3 {
 /* ... */
 // template <typename Item>
 
-class SPQ : public DiffServ<ns3::Packet> {
+class SPQ : public DiffServ<ns3::Packet>
+{
 public:
   static TypeId GetTypeId (void);
 
   SPQ ();
-  ~SPQ();
+  ~SPQ ();
 
-  enum QueueMode
-  {
+  enum QueueMode {
     QUEUE_MODE_PACKETS,
     QUEUE_MODE_BYTES,
   };
   int m_numberOfQueues;
   std::string m_queueLevels;
-  // vector<IntegerValue> m_queueLevels;
   Ptr<Packet> Schedule (void);
   uint32_t Classify (Ptr<Packet> p);
   void SetMode (SPQ::QueueMode mode);
@@ -35,34 +34,20 @@ public:
   void SetNumberOfQueues (int numberOfQueues);
   void SetQueueLevels (std::string queueLevels);
   void Setup (int s);
-  // void SetQueueLevels (vector<IntegerValue> queueLevels);
 
 private:
-   virtual bool Enqueue(Ptr<Packet> p);
-   virtual Ptr<Packet> Dequeue (void);
-   virtual Ptr<const Packet> Peek (void) const;
-   virtual Ptr<Packet> Remove (void);
-  std::vector<TrafficClass*> q_class;
+  virtual bool Enqueue (Ptr<Packet> p);
+  virtual Ptr<Packet> Dequeue (void);
+  virtual Ptr<const Packet> Peek (void) const;
+  virtual Ptr<Packet> Remove (void);
+  std::vector<TrafficClass *> q_class;
   QueueMode m_mode;
 
   NS_LOG_TEMPLATE_DECLARE;
 };
 
-// class SPQConfig : public ns3::Object {
-//   public:
-
-//   // SPQConfig (int numQs);
-//   // ~SPQConfig ();
-
-//   void SetNumberOfQueues  (int numQs);
-
-
-//   private:
-//   int m_numberOfQueues;
-// };
-
 // extern template class SPQ<Packet>;
 // extern template class SPQ<QueueDiscItem>;
-}
+} // namespace ns3
 
 #endif /* SPQ_H */

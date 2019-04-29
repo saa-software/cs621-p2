@@ -62,44 +62,37 @@ main (int argc, char *argv[])
   Json::Value root;
   Json::CharReaderBuilder rbuilder;
   std::string errs;
-  std::ifstream config_doc(inputFile, std::ifstream::binary);
+  std::ifstream config_doc (inputFile, std::ifstream::binary);
   config_doc >> root;
   Json::parseFromStream (rbuilder, config_doc, &root, &errs);
   Json::StreamWriterBuilder wbuilder;
   // Get number of queues
   const Json::Value outputNumQueues = root["numerOfQueues"];
   std::string numQueuesStr = Json::writeString (wbuilder, outputNumQueues);
+  // Init vars
   int numQueues = stoi (numQueuesStr);
-  // Ptr<SPQConfig> config = CreateObject<SPQConfig> ();
-  // config->SetNumberOfQueues (numQueues);
-  // SPQConfig spqConfig (numQueues);
-  // Get level for each queue
-  // std:: vector<int> queueLevels;
   std::string queueLevels;
   int i;
-  for (i = 0; i < numQueues; i++) {
-      std::string q = "q" + to_string(i);
+  for (i = 0; i < numQueues; i++)
+    {
+      std::string q = "q" + to_string (i);
       const Json::Value outputQ0 = root[q];
       std::string q0Str = Json::writeString (wbuilder, outputQ0);
       int qVal = stoi (q0Str);
-      // queueLevels.push_back(qVal);
       queueLevels = queueLevels + std::to_string (qVal);
-  }
+    }
   // End json parsing
 
-  std::cout << "numberQueues " << numQueues << std::endl;
-  std::cout << "queuelevels " << queueLevels << std::endl;
-  // for (i = 0; i < numQueues; i++) {
-  //   printf("%d ", queueLevels[i]);
-  // }
-  // printf("\n");
+  // std::cout << "numberQueues " << numQueues << std::endl;
+  // std::cout << "queuelevels " << queueLevels << std::endl;
 
   // Explicitly create the nodes required by the topology.
   NodeContainer n;
   n.Create (3);
 
   NodeContainer n0n1 = NodeContainer (n.Get (0), n.Get (1));
-  NodeContainer n1n2 = NodeContainer (n.Get (1), n.Get (2));;
+  NodeContainer n1n2 = NodeContainer (n.Get (1), n.Get (2));
+  ;
 
   PointToPointHelper p0p1;
   p0p1.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
@@ -108,18 +101,9 @@ main (int argc, char *argv[])
 
   PointToPointHelper p1p2;
   p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
-  p1p2.SetQueue("ns3::SPQ",
-                "Mode", StringValue ("QUEUE_MODE_PACKETS"),
-                "NumberOfQueues", IntegerValue (numQueues),
-                "QueueLevels", StringValue (queueLevels),
-                "Setup", IntegerValue (1));
-  // p1p2.SetQueue("ns3::SPQ",
-  //               "Mode", StringValue ("QUEUE_MODE_PACKETS"),
-  //               "SPQConfig", PointerValue (config));
-  // p1p2.SetQueue("ns3::SPQ",
-  //               "Mode", StringValue ("QUEUE_MODE_PACKETS"),
-  //               "NumberOfQueues", IntegerValue (numQueues),
-  //               "QueueLevels", VectorValue (&queueLevels));
+  p1p2.SetQueue ("ns3::SPQ", "Mode", StringValue ("QUEUE_MODE_PACKETS"), "NumberOfQueues",
+                 IntegerValue (numQueues), "QueueLevels", StringValue (queueLevels), "Setup",
+                 IntegerValue (1));
 
   NetDeviceContainer c1c2 = p1p2.Install (n1n2);
 
@@ -176,7 +160,6 @@ main (int argc, char *argv[])
   apps.Start (Seconds (start + 1));
   apps.Stop (Seconds (stop));
 
-
   CdaClientHelper client2 (i1i2.GetAddress (1), port2);
   client2.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount2));
   client2.SetAttribute ("Interval", TimeValue (interPacketInterval2));
@@ -185,7 +168,6 @@ main (int argc, char *argv[])
   apps = client2.Install (n.Get (0));
   apps.Start (Seconds (start + 2));
   apps.Stop (Seconds (stop));
-
 
   AsciiTraceHelper ascii;
 

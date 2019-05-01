@@ -42,7 +42,7 @@ main (int argc, char *argv[])
   // for selected modules; the below lines suggest how to do this
   //
   // LogComponentEnable ("CdaServerApplication", LOG_LEVEL_ALL);
-  LogComponentEnable ("DRR", LOG_LEVEL_INFO);
+  // LogComponentEnable ("DRR", LOG_LEVEL_INFO);
   // LogComponentEnable ("TrafficClass", LOG_LEVEL_ALL);
   // LogComponentEnable ("DropTailQueue", LOG_LEVEL_ALL);
   // LogComponentEnable ("Filter", LOG_LEVEL_ALL);
@@ -96,7 +96,7 @@ main (int argc, char *argv[])
   NetDeviceContainer c0c1 = p0p1.Install (n0n1);
 
   PointToPointHelper p1p2;
-  p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
+  p1p2.SetDeviceAttribute ("DataRate", StringValue ("1Mbps"));
   // p1p2.SetQueue("ns3::DRR", "Mode", StringValue("QUEUE_MODE_PACKETS"));
   p1p2.SetQueue ("ns3::DRR",
                  "Mode", StringValue ("QUEUE_MODE_PACKETS"),

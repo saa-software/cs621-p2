@@ -63,8 +63,8 @@ DRR::Setup(int s) {
         // New traffic class
         q_class.push_back (new TrafficClass ());
         q_class[i]->SetPriorityLevel (m_queueQuantums[i]);
-        q_class[i]->SetMode (1);
-        q_class[i]->SetMaxBytes (15000);
+        q_class[i]->SetMode (0);
+        q_class[i]->SetMaxPackets (20000);
         // New filter elements vec
         vector<FilterElements *> fe;
         fe.push_back (new Destination_Port_Number (port));
@@ -165,7 +165,7 @@ DRR::Schedule (void) {
 
   //if all queues are empty, return 0
   if (q_class[HIGH]->isEmpty() && q_class[MED]->isEmpty() && q_class[LOW]->isEmpty()) {
-    return 0; 
+    return 0;
   }
 
     switch (this->q_kind)
@@ -277,11 +277,18 @@ DRR::Enqueue(Ptr<Packet> p) {
   }
 }
 
-// template <typename Item>
+
 Ptr<Packet>
 DRR::Dequeue (void) {
   NS_LOG_FUNCTION (this);
-  Ptr<Packet> p = Schedule();
+  Ptr<Packet> p;
+  while (!q_class[HIGH]->isEmpty() || !q_class[MED]->isEmpty() || !q_class[LOW]->isEmpty()) {
+    p = Schedule();
+    if(p != 0) {
+      return p;
+    }
+  }
+
   return p;
 }
 

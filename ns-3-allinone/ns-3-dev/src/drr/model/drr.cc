@@ -14,7 +14,7 @@ namespace ns3 {
   const int MED = 1;
   const int HIGH = 2;
   //TODO: create a getter/setter?
-  const uint32_t QUANTUM = 1000;
+  const uint32_t QUANTUM = 110;
 
 TypeId
 DRR::GetTypeId (void) {
@@ -63,8 +63,8 @@ DRR::Setup(int s) {
         // New traffic class
         q_class.push_back (new TrafficClass ());
         q_class[i]->SetPriorityLevel (m_queueQuantums[i]);
-        q_class[i]->SetMode (0);
-        q_class[i]->SetMaxPackets (500);
+        q_class[i]->SetMode (1);
+        q_class[i]->SetMaxBytes (15000);
         // New filter elements vec
         vector<FilterElements *> fe;
         fe.push_back (new Destination_Port_Number (port));
@@ -165,10 +165,9 @@ DRR::Schedule (void) {
 
   //if all queues are empty, return 0
   if (q_class[HIGH]->isEmpty() && q_class[MED]->isEmpty() && q_class[LOW]->isEmpty()) {
-    return 0;
+    return 0; 
   }
 
-  while(true){
     switch (this->q_kind)
     {
       case HIGH: //HIGH
@@ -193,7 +192,6 @@ DRR::Schedule (void) {
                 q_kind = MED;
                 isNewRound = true;
               }
-              break;
       case MED:
         NS_LOG_INFO("MED: isNewRound : " << isNewRound);
               if(!q_class[MED]->isEmpty()) {
@@ -216,7 +214,6 @@ DRR::Schedule (void) {
                 q_kind = LOW;
                 isNewRound = true;
               }
-              break;
       case LOW:
           NS_LOG_INFO("LOW: isNewRound : "<< isNewRound);
               if(!q_class[LOW]->isEmpty()) {
@@ -239,11 +236,10 @@ DRR::Schedule (void) {
                 q_kind = HIGH;
                 isNewRound = true;
               }
-              break;
         default:
           return 0;
         }
-  }
+
       return 0;
 }
 
@@ -252,10 +248,13 @@ uint32_t
 DRR::Classify (Ptr<Packet> p) {
   NS_LOG_FUNCTION (this);
   if(q_class[HIGH]->match(p)) {
+    NS_LOG_FUNCTION ("classify 2");
     return 2;
   } else if(q_class[MED]->match(p)) {
+    NS_LOG_FUNCTION ("classify 1");
     return 1;
   } else {
+    NS_LOG_FUNCTION ("classify 0");
     return 0;
   }
 }

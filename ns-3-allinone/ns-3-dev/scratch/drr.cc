@@ -36,14 +36,13 @@ NS_LOG_COMPONENT_DEFINE ("DRR");
 int
 main (int argc, char *argv[])
 {
-  // Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("6000p"));
+  Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("6000p"));
   //
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
   //
-  // LogComponentEnable ("Cda", LOG_LEVEL_INFO);
   // LogComponentEnable ("CdaServerApplication", LOG_LEVEL_ALL);
-  // LogComponentEnable ("DRR", LOG_LEVEL_INFO);
+  LogComponentEnable ("DRR", LOG_LEVEL_INFO);
   // LogComponentEnable ("TrafficClass", LOG_LEVEL_ALL);
   // LogComponentEnable ("DropTailQueue", LOG_LEVEL_ALL);
   // LogComponentEnable ("Filter", LOG_LEVEL_ALL);
@@ -125,9 +124,9 @@ main (int argc, char *argv[])
   Packet::EnablePrinting ();
   double start = 1.0;
   double stop = 300.0;
-  uint16_t port1 = 9;
+  uint16_t port1 = 11;
   uint16_t port2 = 10;
-  uint16_t port3 = 11;
+  uint16_t port3 = 9;
 
   CdaServerHelper server1 (port1);
   CdaServerHelper server2 (port2);
@@ -151,15 +150,15 @@ main (int argc, char *argv[])
   //
   uint32_t packetSize1 = 300;
   uint32_t maxPacketCount1 = 5000;
-  Time interPacketInterval1 = MicroSeconds (1000);
+  Time interPacketInterval1 = MicroSeconds (100);
 
   uint32_t packetSize2 = 300;
   uint32_t maxPacketCount2 = 5000;
-  Time interPacketInterval2 = MicroSeconds (1000);
+  Time interPacketInterval2 = MicroSeconds (100);
 
   uint32_t packetSize3 = 300;
   uint32_t maxPacketCount3 = 5000;
-  Time interPacketInterval3 = MicroSeconds (1000);
+  Time interPacketInterval3 = MicroSeconds (100);
 
   CdaClientHelper client1 (i1i2.GetAddress (1), port1);
   client1.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount1));
@@ -167,7 +166,7 @@ main (int argc, char *argv[])
   client1.SetAttribute ("PacketSize", UintegerValue (packetSize1));
 
   apps = client1.Install (n.Get (0));
-  apps.Start (Seconds (start + 4));
+  apps.Start (Seconds (start + 2));
   apps.Stop (Seconds (stop));
 
 
@@ -177,7 +176,7 @@ main (int argc, char *argv[])
   client2.SetAttribute ("PacketSize", UintegerValue (packetSize2));
 
   apps = client2.Install (n.Get (0));
-  apps.Start (Seconds (start + 3));
+  apps.Start (Seconds (start + 2));
   apps.Stop (Seconds (stop));
 
   CdaClientHelper client3 (i1i2.GetAddress (1), port3);

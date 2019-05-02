@@ -36,7 +36,7 @@ NS_LOG_COMPONENT_DEFINE ("SPQ");
 int
 main (int argc, char *argv[])
 {
-  // Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("500p"));
+  Config::SetDefault ("ns3::QueueBase::MaxSize", StringValue ("60000p"));
   //
   // Users may find it convenient to turn on explicit debugging
   // for selected modules; the below lines suggest how to do this
@@ -95,7 +95,7 @@ main (int argc, char *argv[])
   NetDeviceContainer c0c1 = p0p1.Install (n0n1);
 
   PointToPointHelper p1p2;
-  p1p2.SetDeviceAttribute ("DataRate", StringValue ("4Mbps"));
+  p1p2.SetDeviceAttribute ("DataRate", StringValue ("1Mbps"));
   p1p2.SetQueue ("ns3::SPQ",
                  "Mode", StringValue ("QUEUE_MODE_PACKETS"),
                  "NumberOfQueues", IntegerValue (numQueues),
@@ -141,12 +141,12 @@ main (int argc, char *argv[])
   // node two.
   //
   uint32_t packetSize1 = 1000;
-  uint32_t maxPacketCount1 = 9000;
-  Time interPacketInterval1 = MicroSeconds (1000);
+  uint32_t maxPacketCount1 = 15000;
+  Time interPacketInterval1 = MicroSeconds (10);
 
   uint32_t packetSize2 = 1000;
-  uint32_t maxPacketCount2 = 110000;
-  Time interPacketInterval2 = MicroSeconds (30);
+  uint32_t maxPacketCount2 = 5000;
+  Time interPacketInterval2 = MicroSeconds (10);
 
   CdaClientHelper client1 (i1i2.GetAddress (1), port1);
   client1.SetAttribute ("MaxPackets", UintegerValue (maxPacketCount1));
@@ -164,7 +164,7 @@ main (int argc, char *argv[])
   client2.SetAttribute ("PacketSize", UintegerValue (packetSize2));
 
   apps = client2.Install (n.Get (0));
-  apps.Start (Seconds (start + 2.5));
+  apps.Start (Seconds (start + 1.1));
   apps.Stop (Seconds (stop));
 
 

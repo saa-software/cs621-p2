@@ -66,7 +66,7 @@ namespace ns3 {
         q_class.push_back (new TrafficClass ());
         q_class[i]->SetPriorityLevel (m_queueLevels[i]);
         q_class[i]->SetMode (0);
-        q_class[i]->SetMaxPackets (500);
+        q_class[i]->SetMaxPackets (20000);
         // New filter elements vec
         vector<FilterElements *> fe;
         fe.push_back (new Destination_Port_Number (port));

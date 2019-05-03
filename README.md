@@ -29,5 +29,12 @@ Additionally, there is a configuration file for both the SPQ and DDR simulations
 - `ddr.json` can be configured to increase the number of queues, and the quantum (or weight) given to packets in each queue
     - Note: The number of queues must match the number of priorities or quantum’s declared.
 
+## Results
+SPQ
+![alt text](https://raw.githubusercontent.com/saa-software/cs621-p2/master/post-spq.png)
+
+DRR
+![alt text](https://raw.githubusercontent.com/saa-software/cs621-p2/master/DRR%20plot.png)
+
 ## Add-ons
 - Json parsing from [JsonCPP](https://github.com/open-source-parsers/jsoncpp)
